@@ -55,6 +55,17 @@ class TypeSwiftTests: XCTestCase {
         type = Type(rawValue: "customType")
         XCTAssertNil(type)
     }
+    
+    func testModelDeclaration() {
+        var dec = ModelDeclaration(rawValue: "export class")
+        XCTAssert(dec?.swiftValue == "public struct")
+        
+        dec = ModelDeclaration(rawValue: "class")
+        XCTAssert(dec?.swiftValue == "struct")
+        
+        dec = ModelDeclaration(rawValue: "Gibberish")
+        XCTAssertNil(dec)
+    }
 
     static var allTests = [
         ("testVariableDeclaration", testVariableType),
