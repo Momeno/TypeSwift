@@ -14,9 +14,9 @@ enum InterfaceDeclaration: String, SwiftStringConvertible {
     var swiftValue: String {
         switch self {
         case .interface:
-            return "struct"
+            return "protocol"
         case .publicInterface:
-            return "public struct"
+            return "public protocol"
         }
     }
 }
