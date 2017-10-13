@@ -82,9 +82,37 @@ class TypeSwiftTests: XCTestCase {
     }
     
     func testInterfaceBody() {
-        let body = InterfaceBody(rawValue: "{person: House\n\tstreet: number/*UInt*/; number: number/*UInt*/ }")
-        let expected = "{\n\tvar person: House { get }\n\tvar street: UInt { get }\n\tvar number: UInt { get }\n}"
+        var body = InterfaceBody(rawValue: "{person: [string, House]\n\tstreet: number/*UInt*/; number: number/*UInt*/ }")
+        var expected = "{\n\tvar person: (String, House) { get }\n\tvar street: UInt { get }\n\tvar number: UInt { get }\n}"
         XCTAssert(body?.swiftValue == expected)
+        
+        var raw = """
+        {
+        \tpeople: Array<[number, Person]>;
+        \tstreet: number/*UInt*/
+        \tnumber: number
+        }
+        """
+        body = InterfaceBody(rawValue: raw)
+        expected = """
+        {
+        \tvar people: [(NSNumber, Person)] { get }
+        \tvar street: UInt { get }
+        \tvar number: NSNumber { get }
+        }
+        """
+        
+        XCTAssert(body?.swiftValue == expected)
+        
+        raw = """
+        {
+        \tpeople: Array<[numbers, Person]>;
+        \tstreet: number/*UInt*/
+        \tnumber: number
+        }
+        """
+        XCTAssertNil(InterfaceBody(rawValue: raw))
+        
     }
 
     static var allTests = [
