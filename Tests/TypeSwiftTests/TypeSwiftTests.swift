@@ -66,10 +66,23 @@ class TypeSwiftTests: XCTestCase {
         dec = ModelDeclaration(rawValue: "Gibberish")
         XCTAssertNil(dec)
     }
+    
+    func testInterfaceDeclaration() {
+        var dec = InterfaceDeclaration(rawValue: "export interface")
+        XCTAssert(dec?.swiftValue == "public protocol")
+        
+        dec = InterfaceDeclaration(rawValue: "interface")
+        XCTAssert(dec?.swiftValue == "protocol")
+        
+        dec = InterfaceDeclaration(rawValue: "gibberish")
+        XCTAssertNil(dec)
+    }
 
     static var allTests = [
         ("testVariableDeclaration", testVariableType),
         ("testSwiftNumber", testSwiftNumber),
-        ("testType", testType)
+        ("testType", testType),
+        ("testModelDeclaration", testModelDeclaration),
+        ("testInterfaceDeclaration", testInterfaceDeclaration)
     ]
 }
