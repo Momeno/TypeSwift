@@ -10,11 +10,11 @@ import Foundation
 struct InterfaceBody: RawRepresentable, SwiftStringConvertible {
 
     let rawValue: String
-    let properties: [(name: String, type: String)]
+    let properties: [(perm: Permission, def: PropertyDefinition)]
 
     var swiftValue: String {
-        return "{\n" + self.properties.map { name, type in
-            return "\tvar \(name): \(type) { get }"
+        return "{\n" + self.properties.map { perm, def in
+            return "\tvar \(def.swiftValue) { \(perm.swiftValue) }"
         }
         .joined(separator: "\n") + "\n}"
     }
@@ -26,26 +26,31 @@ struct InterfaceBody: RawRepresentable, SwiftStringConvertible {
         guard let end = rawValue.rangeOfCharacter(from: CharacterSet(charactersIn:"}"), options: .backwards, range: nil)?.lowerBound else {
             return nil
         }
+
         let workingString = rawValue[start..<end]
         let components = workingString.components(separatedBy: CharacterSet(charactersIn: "\n;"))
-        var arr: [(String, String)] = []
+        var arr: [(Permission, PropertyDefinition)] = []
         for element in components {
             if element.isEmpty { continue }
             
-            let innerComponents = element.components(separatedBy: ":")
-            
-            guard innerComponents.count == 2 else {
+            var element = element
+            element = element.trimLeadingWhitespace()
+                .trimTrailingWhitespace()
+
+            var permission = Permission.readAndWrite
+            let readonly = "readonly"
+            if element.hasPrefix(readonly) {
+                permission = .readonly
+                element = String(element[element.index(element.startIndex,
+                                                       offsetBy: readonly.count)..<element.endIndex])
+                    .trimLeadingWhitespace()
+            }
+
+            guard let definition = PropertyDefinition(rawValue: element) else {
                 return nil
             }
-            
-            let first = innerComponents[0].trimmingCharacters(in: .whitespaces)
-            let second = innerComponents[1].trimmingCharacters(in: .whitespaces)
 
-            guard let type = Type(rawValue: second) else {
-                return nil
-            }
-
-            arr.append((first, type.swiftValue))
+            arr.append((permission, definition))
         }
         self.properties = arr
         self.rawValue = rawValue

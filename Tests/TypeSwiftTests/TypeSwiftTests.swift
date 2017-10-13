@@ -60,12 +60,9 @@ class TypeSwiftTests: XCTestCase {
     }
     
     func testModelDeclaration() {
-        var dec = ModelDeclaration(rawValue: "export class")
-        XCTAssert(dec?.swiftValue == "public struct")
-        
-        dec = ModelDeclaration(rawValue: "class")
+        var dec = ModelDeclaration(rawValue: "class")
         XCTAssert(dec?.swiftValue == "struct")
-        
+
         dec = ModelDeclaration(rawValue: "Gibberish")
         XCTAssertNil(dec)
     }
@@ -82,23 +79,23 @@ class TypeSwiftTests: XCTestCase {
     }
     
     func testInterfaceBody() {
-        var body = InterfaceBody(rawValue: "{person: [string, House]\n\tstreet: number/*UInt*/; number: number/*UInt*/ }")
+        var body = InterfaceBody(rawValue: "{readonly person: [string, House]\n\treadonly street: number/*UInt*/; readonly number: number/*UInt*/ }")
         var expected = "{\n\tvar person: (String, House) { get }\n\tvar street: UInt { get }\n\tvar number: UInt { get }\n}"
         XCTAssert(body?.swiftValue == expected)
         
         var raw = """
         {
         \tpeople: Array<[number, Person]>;
-        \tstreet: number/*UInt*/
+        \treadonly street?: number/*UInt*/
         \tnumber: number
         }
         """
         body = InterfaceBody(rawValue: raw)
         expected = """
         {
-        \tvar people: [(NSNumber, Person)] { get }
-        \tvar street: UInt { get }
-        \tvar number: NSNumber { get }
+        \tvar people: [(NSNumber, Person)] { get set }
+        \tvar street: UInt? { get }
+        \tvar number: NSNumber { get set }
         }
         """
         
@@ -114,13 +111,77 @@ class TypeSwiftTests: XCTestCase {
         XCTAssertNil(InterfaceBody(rawValue: raw))
         
     }
+    
+    func testAccessLevel() {
+        var access = PropertyAccessLevel(rawValue: "private")
+        XCTAssert(access?.swiftValue == "private")
+        
+        access = PropertyAccessLevel(rawValue: "public")
+        XCTAssert(access?.swiftValue == "public")
 
+        access = PropertyAccessLevel(rawValue: "export")
+        XCTAssertNil(access)
+        
+        let maccess = ModelAccessLevel(rawValue: "export")
+        XCTAssert(maccess?.swiftValue == "public")
+    }
+    
+    func testPropertyDefinition() {
+        var property = PropertyDefinition(rawValue: "string: string")
+        XCTAssert(property?.swiftValue == "string: String")
+
+        property = PropertyDefinition(rawValue: "name:[string, number]")
+        XCTAssert(property?.swiftValue == "name: (String, NSNumber)")
+        
+        property = PropertyDefinition(rawValue: "optional?: [boolean, Array<number/*Int*/>]")
+        XCTAssert(property?.swiftValue == "optional: (Bool, [Int])?")
+        
+        property = PropertyDefinition(rawValue: "optional? string")
+        XCTAssertNil(property)
+    }
+    
+//    func testModelBody() {
+//        var raw = """
+//        {
+//        \tvar people: [(NSNumber, Person)] { get }
+//        \tconst street: UInt { get }
+//        \tvar number: NSNumber { get }
+//        }
+//        """
+//
+//        var body = ModelBody(rawValue: raw)
+//    }
+
+    func testStringHelpers() {
+        var str = "    s d fja    "
+        var exp = "    s d fja"
+        XCTAssert(str.trimTrailingWhitespace() == exp)
+        
+        str = exp.trimLeadingWhitespace()
+        exp = "s d fja"
+        XCTAssert(str == exp)
+        
+        str = " © "
+        exp = "©"
+        XCTAssert(str.trimLeadingWhitespace().trimTrailingWhitespace() == exp)
+        
+        str = " 😘 "
+        exp = "😘"
+        XCTAssert(str.trimTrailingWhitespace().trimLeadingWhitespace() == exp)
+        str = " 👨‍👩‍👧‍👧 "
+        exp = "👨‍👩‍👧‍👧"
+        XCTAssert(str.trimTrailingWhitespace().trimLeadingWhitespace() == exp)
+    }
+    
     static var allTests = [
         ("testVariableDeclaration", testVariableType),
         ("testSwiftNumber", testSwiftNumber),
         ("testType", testType),
         ("testModelDeclaration", testModelDeclaration),
         ("testInterfaceDeclaration", testInterfaceDeclaration),
-        ("testInterfaceBody", testInterfaceBody)
+        ("testInterfaceBody", testInterfaceBody),
+        ("testAccessLevel", testAccessLevel),
+        ("testPropertyDefinition", testPropertyDefinition),
+        ("testStringHelpers", testStringHelpers)
     ]
 }
