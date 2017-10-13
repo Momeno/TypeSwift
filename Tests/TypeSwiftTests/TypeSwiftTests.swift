@@ -35,10 +35,10 @@ class TypeSwiftTests: XCTestCase {
         XCTAssert(type?.swiftValue == "Float")
         
         type = Type(rawValue: "Array<number/*Float*/>")
-        XCTAssert(type?.swiftValue == "Array<Float>")
+        XCTAssert(type?.swiftValue == "[Float]")
         
         type = Type(rawValue: "Array<Array<boolean>>")
-        XCTAssert(type?.swiftValue == "Array<Array<Bool>>")
+        XCTAssert(type?.swiftValue == "[[Bool]]")
         
         type = Type(rawValue: "[number/*Float*/, string]")
         XCTAssert(type?.swiftValue == "(Float, String)")

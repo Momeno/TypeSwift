@@ -53,8 +53,10 @@ indirect enum Type: RawRepresentable, SwiftStringConvertible {
             }
             self = .number(swiftNum)
         } else if rawValue.hasPrefix("Array<") && rawValue.hasSuffix(">") {
-            let start = rawValue.index(rawValue.startIndex, offsetBy: 6)
+            guard let idx = rawValue.index(of: "<") else { return nil }
+            let start = rawValue.index(after: idx)
             let end = rawValue.index(rawValue.startIndex, offsetBy: rawValue.count - 1)
+
             let rawType = String(rawValue[start..<end])
             guard let type = Type(rawValue: rawType) else { return nil }
             self = .array(type)
