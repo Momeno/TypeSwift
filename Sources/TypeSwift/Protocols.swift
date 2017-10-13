@@ -6,3 +6,7 @@
 //
 
 import Foundation
+
+protocol SwiftStringConvertible {
+    var swiftValue: String { get }
+}

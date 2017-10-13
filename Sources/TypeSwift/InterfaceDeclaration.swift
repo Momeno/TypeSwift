@@ -6,3 +6,17 @@
 //
 
 import Foundation
+
+enum InterfaceDeclaration: String, SwiftStringConvertible {
+    case publicInterface = "export interface"
+    case interface = "interface"
+    
+    var swiftValue: String {
+        switch self {
+        case .interface:
+            return "struct"
+        case .publicInterface:
+            return "public struct"
+        }
+    }
+}

@@ -1,5 +1,5 @@
 //
-//  ModelBody.swift
+//  InterfaceBody.swift
 //  TypeSwift
 //
 //  Created by Þorvaldur Rúnarsson on 13/10/2017.
@@ -7,16 +7,16 @@
 
 import Foundation
 
-struct ModelBody: RawRepresentable, SwiftStringConvertible {
+struct InterfaceBody: RawRepresentable, SwiftStringConvertible {
 
     let rawValue: String
     let properties: [(name: String, type: String)]
 
     var swiftValue: String {
-        self.properties.map { name, type in
-            return ""
+        return self.properties.map { name, type in
+            return "var \(name): \(type) { get }"
         }
-        return ""
+        .joined(separator: "\n")
     }
 
     init?(rawValue: String) {

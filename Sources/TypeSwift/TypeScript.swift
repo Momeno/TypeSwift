@@ -6,3 +6,8 @@
 //
 
 import Foundation
+
+enum TypeScript {
+    //case model(ModelDeclaration, String, ModelBody)
+    case interface(InterfaceDeclaration, String, InterfaceBody)
+}
