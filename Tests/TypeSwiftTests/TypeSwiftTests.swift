@@ -31,6 +31,9 @@ class TypeSwiftTests: XCTestCase {
         var type: Type? = Type(rawValue: "boolean")
         XCTAssert(type?.swiftValue == "Bool")
 
+        type = Type(rawValue: "number")
+        XCTAssert(type?.swiftValue == "NSNumber")
+        
         type = Type(rawValue: "number/*Float*/")
         XCTAssert(type?.swiftValue == "Float")
         

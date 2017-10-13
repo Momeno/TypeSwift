@@ -10,9 +10,10 @@ import Foundation
 indirect enum Type: RawRepresentable, SwiftStringConvertible {
     case string
     case boolean
+    case number
     case void
     case custom(String)
-    case number(SwiftNumber)
+    case swiftNumber(SwiftNumber)
     case array(Type)
     case tuple(Type, Type)
     
@@ -22,11 +23,13 @@ indirect enum Type: RawRepresentable, SwiftStringConvertible {
             return "string"
         case .boolean:
             return "boolean"
+        case .number:
+            return "number"
         case .void:
             return "void"
         case .custom(let customType):
             return customType
-        case .number(let swiftNum):
+        case .swiftNumber(let swiftNum):
             return "number/*\(swiftNum)*/"
         case .array(let type):
             return "Array<\(type.rawValue)>"
@@ -42,6 +45,8 @@ indirect enum Type: RawRepresentable, SwiftStringConvertible {
             self = .boolean
         } else if rawValue == "void" {
             self = .void
+        } else if rawValue == "number" {
+            self = .number
         } else if rawValue.hasPrefix("number") {
             guard rawValue.count > 8 else { return nil }
 
@@ -51,7 +56,7 @@ indirect enum Type: RawRepresentable, SwiftStringConvertible {
             guard let swiftNum = SwiftNumber(rawValue: swiftNumRaw) else {
                 return nil
             }
-            self = .number(swiftNum)
+            self = .swiftNumber(swiftNum)
         } else if rawValue.hasPrefix("Array<") && rawValue.hasSuffix(">") {
             guard let idx = rawValue.index(of: "<") else { return nil }
             let start = rawValue.index(after: idx)
@@ -115,9 +120,11 @@ indirect enum Type: RawRepresentable, SwiftStringConvertible {
             return "Bool"
         case .string:
             return "String"
+        case .number:
+            return "NSNumber"
         case .void:
             return "Void"
-        case .number(let swiftNum):
+        case .swiftNumber(let swiftNum):
             return swiftNum.rawValue
         case .array(let type):
             return "[\(type.swiftValue)]"
