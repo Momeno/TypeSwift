@@ -77,12 +77,19 @@ class TypeSwiftTests: XCTestCase {
         dec = InterfaceDeclaration(rawValue: "gibberish")
         XCTAssertNil(dec)
     }
+    
+    func testInterfaceBody() {
+        let body = InterfaceBody(rawValue: "{person: House\n\tstreet: number/*UInt*/; number: number/*UInt*/ }")
+        let expected = "{\n\tvar person: House { get }\n\tvar street: UInt { get }\n\tvar number: UInt { get }\n}"
+        XCTAssert(body?.swiftValue == expected)
+    }
 
     static var allTests = [
         ("testVariableDeclaration", testVariableType),
         ("testSwiftNumber", testSwiftNumber),
         ("testType", testType),
         ("testModelDeclaration", testModelDeclaration),
-        ("testInterfaceDeclaration", testInterfaceDeclaration)
+        ("testInterfaceDeclaration", testInterfaceDeclaration),
+        ("testInterfaceBody", testInterfaceBody)
     ]
 }

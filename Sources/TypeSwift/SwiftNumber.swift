@@ -10,6 +10,7 @@ import Foundation
 enum SwiftNumber: String {
     case float = "Float"
     case int = "Int"
+    case uint = "UInt"
     case double = "Double"
     
     case float32 = "Float32"
