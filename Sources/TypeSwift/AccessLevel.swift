@@ -19,7 +19,7 @@ enum PropertyAccessLevel: String, SwiftStringConvertible {
         case .private:
             return "private"
         case .protected:
-            return "protected"
+            return "internal"
         }
     }
 }

@@ -27,4 +27,38 @@ try! TypeSwift.sharedInstance.convert(file: fileURL,
 
 // or alternatively
 let string: String? = TypeSwift.sharedInstance.convertedString(from: typescript, to: .swift)
-``
+```
+
+### Example conversion
+
+This typescript string
+
+```typescript
+interface Bar {
+    readonly x: number
+}
+
+class Foo {
+    public readonly x: number;
+    private y: number;
+} class Bar {
+    protected property : Array<[boolean, string]>
+}
+```
+
+Would be converted to
+
+```swift
+protocol Bar {
+    var x: NSNumber { get }
+}
+
+struct Foo {
+    public let x: NSNumber
+    private var y: NSNumber
+}
+
+struct Bar {
+    internal var property: [(Bool, String)]
+}
+```

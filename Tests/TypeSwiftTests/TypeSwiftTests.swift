@@ -147,7 +147,7 @@ class TypeSwiftTests: XCTestCase {
         """
         let exp = """
         {
-        \tprotected let people: [(NSNumber, Person)]
+        \tinternal let people: [(NSNumber, Person)]
         \tprivate var street: UInt
         \tpublic var number: NSNumber
         }
@@ -235,7 +235,7 @@ class TypeSwiftTests: XCTestCase {
         }
 
         struct Bar {
-        \tprotected var property: [(Bool, String)]
+        \tinternal var property: [(Bool, String)]
         }
         """
 
