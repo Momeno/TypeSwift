@@ -159,6 +159,38 @@ class TypeSwiftTests: XCTestCase {
         body = ModelBody(rawValue: raw)
         XCTAssert(body?.swiftValue == exp)
     }
+    
+    func testTypeScript() {
+        let raw = """
+        interface Bar {
+        \treadonly x: number
+        }
+
+        class Foo {
+        \tpublic readonly x: number;
+        \tprivate y: number;
+        } class Bar {
+        \tprotected property : Array<[boolean, string]>
+        }
+        """
+        
+        let exp = """
+        protocol Bar {
+        \tvar x: NSNumber { get }
+        }
+
+        struct Foo {
+        \tpublic let x: NSNumber
+        \tprivate var y: NSNumber
+        }
+
+        struct Bar {
+        \tprotected var property: [(Bool, String)]
+        }
+        """
+        
+        XCTAssert(TypeScript(rawValue: raw)?.swiftValue == exp)
+    }
 
     func testStringTrimHelpers() {
         var str = "    s d fja    "
