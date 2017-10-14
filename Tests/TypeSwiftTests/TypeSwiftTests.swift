@@ -188,7 +188,7 @@ class TypeSwiftTests: XCTestCase {
         \tprotected var property: [(Bool, String)]
         }
         """
-        
+
         XCTAssert(TypeScript(rawValue: raw)?.swiftValue == exp)
     }
 
@@ -230,6 +230,10 @@ class TypeSwiftTests: XCTestCase {
         XCTAssertNil(test.interfaceDeclarationPrefix())
         XCTAssert(test.modelDeclarationPrefix()?.rawValue == "export class")
         
+        test = "class Foo"
+        XCTAssertNil(test.interfaceDeclarationPrefix())
+        XCTAssert(test.modelDeclarationPrefix()?.rawValue == "class")
+        
         test = "export inter"
         XCTAssertNil(test.interfaceDeclarationPrefix())
         XCTAssertNil(test.modelDeclarationPrefix())
@@ -237,7 +241,11 @@ class TypeSwiftTests: XCTestCase {
     
     func testStringBodyHelpers() {
         var test = "{ { } }  }"
-        let exp = "{ { } }"
+        var exp = "{ { } }"
+        XCTAssert(String(test[test.rangeOfBody()!]) == exp)
+        
+        test = "{\n{ } } class bla {  }"
+        exp = "{\n{ } }"
         XCTAssert(String(test[test.rangeOfBody()!]) == exp)
         
         test = "{} }   "

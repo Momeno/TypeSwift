@@ -13,26 +13,42 @@ enum PrefixType {
 }
 
 extension String {
-    func trimTrailingWhitespace() -> String {
-        if let trailingWs = self.range(of: "\\s+$", options: .regularExpression) {
-            return self.replacingCharacters(in: trailingWs, with: "")
+    
+    func trimLeadingCharacters(in set: CharacterSet) -> String {
+        guard self.isEmpty == false,
+            let scalar = self[startIndex].unicodeScalars.first else { return self }
+
+        if set.contains(scalar) {
+            return String(self[self.index(after: self.startIndex)..<self.endIndex])
+                .trimLeadingCharacters(in: set)
         } else {
             return self
         }
+    }
+    
+    func trimTrailingCharacters(in set: CharacterSet) -> String {
+        guard self.isEmpty == false else { return self }
+
+        let lastCharIndex = self.index(before: self.endIndex)
+        
+        guard let scalar = self[lastCharIndex].unicodeScalars.first else { return self }
+        
+        if set.contains(scalar) {
+            return String(self.prefix(self.count-1))
+                .trimTrailingCharacters(in: set)
+        } else {
+            return self
+        }
+    }
+    
+    func trimTrailingWhitespace() -> String {
+        return self.trimTrailingCharacters(in: .whitespaces)
     }
     
     func trimLeadingWhitespace() -> String {
-        guard self.isEmpty == false,
-            let scalar = self[startIndex].unicodeScalars.first else { return self }
-        
-        if CharacterSet.whitespaces.contains(scalar) {
-            return String(self[self.index(after: self.startIndex)..<self.endIndex])
-                .trimLeadingWhitespace()
-        } else {
-            return self
-        }
+        return self.trimLeadingCharacters(in: .whitespaces)
     }
-    
+
     func allIndices(of substring: String) -> [String.Index] {
         var searchRange = self.startIndex..<self.endIndex
         var indexes: [String.Index] = []
@@ -88,6 +104,7 @@ extension String {
                 matchingCount = matchingCount + 1
                 if matchingCount == forwardCount && forwardCount > 0 {
                     upper = self.index(self.startIndex, offsetBy: index)
+                    break
                 }
             }
         }
