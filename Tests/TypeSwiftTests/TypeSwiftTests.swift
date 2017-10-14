@@ -237,7 +237,7 @@ class TypeSwiftTests: XCTestCase {
     
     func testStringBodyHelpers() {
         var test = "{ { } }  }"
-        var exp = "{ { } }"
+        let exp = "{ { } }"
         XCTAssert(String(test[test.rangeOfBody()!]) == exp)
         
         test = "{} }   "
@@ -254,6 +254,7 @@ class TypeSwiftTests: XCTestCase {
         ("testInterfaceBody", testInterfaceBody),
         ("testAccessLevel", testAccessLevel),
         ("testModelBody", testModelBody),
+        ("testTypeScript", testTypeScript),
         ("testPropertyDefinition", testPropertyDefinition),
         ("testStringTrimHelpers", testStringTrimHelpers),
         ("testStringPrefixHelpers", testStringPrefixHelpers)
