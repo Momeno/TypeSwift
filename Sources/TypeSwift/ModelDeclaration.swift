@@ -8,12 +8,15 @@
 import Foundation
 
 enum ModelDeclaration: String, SwiftStringConvertible {
-    case `class` = "class"
+    case `class`
+    case publicClass = "export class"
     
     var swiftValue: String {
         switch self {
         case .`class`:
             return "struct"
+        case .publicClass:
+            return "public struct"
         }
     }
 }

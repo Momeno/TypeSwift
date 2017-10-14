@@ -38,7 +38,7 @@ struct InterfaceBody: RawRepresentable, SwiftStringConvertible {
                 .trimTrailingWhitespace()
 
             var permission = Permission.readAndWrite
-            let readonly = "readonly"
+            let readonly = TypeScript.Constants.readonly
             if element.hasPrefix(readonly) {
                 permission = .readonly
                 element = String(element[element.index(element.startIndex,

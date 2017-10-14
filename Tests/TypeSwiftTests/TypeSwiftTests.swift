@@ -86,7 +86,7 @@ class TypeSwiftTests: XCTestCase {
         var raw = """
         {
         \tpeople: Array<[number, Person]>;
-        \treadonly street?: number/*UInt*/
+        \treadonly street? : number/*UInt*/
         \tnumber: number
         }
         """
@@ -152,7 +152,7 @@ class TypeSwiftTests: XCTestCase {
 //        var body = ModelBody(rawValue: raw)
 //    }
 
-    func testStringHelpers() {
+    func testStringTrimHelpers() {
         var str = "    s d fja    "
         var exp = "    s d fja"
         XCTAssert(str.trimTrailingWhitespace() == exp)
@@ -173,6 +173,28 @@ class TypeSwiftTests: XCTestCase {
         XCTAssert(str.trimTrailingWhitespace().trimLeadingWhitespace() == exp)
     }
     
+    func testStringPrefixHelpers() {
+        var test = "    interface Some {"
+        XCTAssert(test.interfaceDeclarationPrefix()?.rawValue == "interface")
+        XCTAssertNil(test.modelDeclarationPrefix())
+        
+        test = "    export interface Some {"
+        XCTAssertNotNil(test.interfaceDeclarationPrefix()?.rawValue == "export interface")
+        XCTAssertNil(test.modelDeclarationPrefix())
+        
+        test = "\t  \t class Some {"
+        XCTAssertNil(test.interfaceDeclarationPrefix())
+        XCTAssertNotNil(test.modelDeclarationPrefix())
+        
+        test = "\t  export class Some {"
+        XCTAssertNil(test.interfaceDeclarationPrefix())
+        XCTAssert(test.modelDeclarationPrefix()?.rawValue == "export class")
+        
+        test = "export inter"
+        XCTAssertNil(test.interfaceDeclarationPrefix())
+        XCTAssertNil(test.modelDeclarationPrefix())
+    }
+    
     static var allTests = [
         ("testVariableDeclaration", testVariableType),
         ("testSwiftNumber", testSwiftNumber),
@@ -182,6 +204,7 @@ class TypeSwiftTests: XCTestCase {
         ("testInterfaceBody", testInterfaceBody),
         ("testAccessLevel", testAccessLevel),
         ("testPropertyDefinition", testPropertyDefinition),
-        ("testStringHelpers", testStringHelpers)
+        ("testStringTrimHelpers", testStringTrimHelpers),
+        ("testStringPrefixHelpers", testStringPrefixHelpers)
     ]
 }

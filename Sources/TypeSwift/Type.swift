@@ -20,34 +20,34 @@ indirect enum Type: RawRepresentable, SwiftStringConvertible {
     var rawValue: String {
         switch self {
         case .string:
-            return "string"
+            return TypeScript.Constants.string
         case .boolean:
-            return "boolean"
+            return TypeScript.Constants.boolean
         case .number:
-            return "number"
+            return TypeScript.Constants.number
         case .void:
-            return "void"
+            return TypeScript.Constants.void
         case .custom(let customType):
             return customType
         case .swiftNumber(let swiftNum):
-            return "number/*\(swiftNum)*/"
+            return "\(TypeScript.Constants.number)/*\(swiftNum)*/"
         case .array(let type):
-            return "Array<\(type.rawValue)>"
+            return "\(TypeScript.Constants.array)<\(type.rawValue)>"
         case .tuple(let type1, let type2):
             return "[\(type1.rawValue), \(type2.rawValue)]"
         }
     }
     
     init?(rawValue: String) {
-        if rawValue == "string" {
+        if rawValue == TypeScript.Constants.string {
             self = .string
-        } else if rawValue == "boolean" {
+        } else if rawValue == TypeScript.Constants.boolean {
             self = .boolean
-        } else if rawValue == "void" {
+        } else if rawValue == TypeScript.Constants.void {
             self = .void
-        } else if rawValue == "number" {
+        } else if rawValue == TypeScript.Constants.number {
             self = .number
-        } else if rawValue.hasPrefix("number") {
+        } else if rawValue.hasPrefix(TypeScript.Constants.number) {
             guard rawValue.count > 8 else { return nil }
 
             let index = rawValue.index(rawValue.startIndex, offsetBy: 8)
