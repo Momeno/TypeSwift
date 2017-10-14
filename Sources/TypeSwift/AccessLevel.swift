@@ -23,14 +23,3 @@ enum PropertyAccessLevel: String, SwiftStringConvertible {
         }
     }
 }
-
-enum ModelAccessLevel: String, SwiftStringConvertible {
-    case export
-    
-    var swiftValue: String {
-        switch self {
-        case .export:
-            return "public"
-        }
-    }
-}

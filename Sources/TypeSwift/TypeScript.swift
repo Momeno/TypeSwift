@@ -7,26 +7,21 @@
 
 import Foundation
 
-enum NewLine: String {
-    case newLine = "\n"
-}
-
 enum TypeScript: RawRepresentable, SwiftStringConvertible {
 
-    //case model(AccessLevel?, ModelDeclaration, String, ModelBody)
     //case conformingModel(AccessLevel?, ModelDeclaration, String, String/*protocol conformation*/, ModelBody)
+    case model(ModelDeclaration, String, ModelBody)
     case interface(InterfaceDeclaration, String, InterfaceBody)
-    case newLine(NewLine)
-    indirect case composed(TypeScript, NewLine, TypeScript)
+    indirect case composed(TypeScript, TypeScript)
 
     var rawValue: String {
         switch self {
         case .interface(let dec, let name, let body):
             return "\(dec.rawValue) \(name) \(body.rawValue)"
-        case .newLine(let newLineSring):
-            return newLineSring.rawValue
-        case .composed(let typescript1, let newLine, let typescript2):
-            return "\(typescript1.rawValue)\(newLine.rawValue)\(typescript2.rawValue)"
+        case .model(let dec, let name, let body):
+            return "\(dec.rawValue) \(name) \(body.rawValue)"
+        case .composed(let typescript1, let typescript2):
+            return "\(typescript1.rawValue)\n\n\(typescript2.rawValue)"
         }
     }
     
@@ -34,14 +29,19 @@ enum TypeScript: RawRepresentable, SwiftStringConvertible {
         switch self {
         case .interface(let dec, let name, let body):
             return "\(dec.swiftValue) \(name) \(body.swiftValue)"
-        case .newLine(let new):
-            return new.rawValue
-        case .composed(let type1, let new, let type2):
-            return "\(type1.swiftValue)\(new.rawValue)\(type2.swiftValue)"
+        case .model(let decl, let name, let body):
+            return "\(decl.swiftValue) \(name) \(body.swiftValue)"
+        case .composed(let type1, let type2):
+            return "\(type1.swiftValue)\n\n\(type2.swiftValue)"
         }
     }
     
     init?(rawValue: String) {
+        if rawValue.hasPrefix(.interfaceDeclaration) {
+            
+        } else if rawValue.hasPrefix(.modelDeclaration) {
+            
+        }
         return nil
     }
 }

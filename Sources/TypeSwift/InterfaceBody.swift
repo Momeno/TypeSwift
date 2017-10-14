@@ -38,11 +38,13 @@ struct InterfaceBody: RawRepresentable, SwiftStringConvertible {
                 .trimTrailingWhitespace()
 
             var permission = Permission.readAndWrite
+
             let readonly = TypeScript.Constants.readonly
+
             if element.hasPrefix(readonly) {
                 permission = .readonly
-                element = String(element[element.index(element.startIndex,
-                                                       offsetBy: readonly.count)..<element.endIndex])
+                element = String(element.suffix(from: element.index(element.startIndex,
+                                                                    offsetBy: readonly.count)))
                     .trimLeadingWhitespace()
             }
 

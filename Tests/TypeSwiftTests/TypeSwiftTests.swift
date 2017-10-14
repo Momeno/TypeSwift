@@ -121,9 +121,6 @@ class TypeSwiftTests: XCTestCase {
 
         access = PropertyAccessLevel(rawValue: "export")
         XCTAssertNil(access)
-        
-        let maccess = ModelAccessLevel(rawValue: "export")
-        XCTAssert(maccess?.swiftValue == "public")
     }
     
     func testPropertyDefinition() {
@@ -140,17 +137,28 @@ class TypeSwiftTests: XCTestCase {
         XCTAssertNil(property)
     }
     
-//    func testModelBody() {
-//        var raw = """
-//        {
-//        \tvar people: [(NSNumber, Person)] { get }
-//        \tconst street: UInt { get }
-//        \tvar number: NSNumber { get }
-//        }
-//        """
-//
-//        var body = ModelBody(rawValue: raw)
-//    }
+    func testModelBody() {
+        var raw = """
+          class Some {
+        \tprotected readonly people: Array<[number, Person]>
+        \tprivate street: number/*UInt*/
+        \tpublic number: number
+        }
+        """
+        let exp = """
+        {
+        \tprotected let people: [(NSNumber, Person)]
+        \tprivate var street: UInt
+        \tpublic var number: NSNumber
+        }
+        """
+        var body = ModelBody(rawValue: raw)
+        XCTAssert(body?.swiftValue == exp)
+        
+        raw = "{protected readonly people :Array<[number, Person]>;private street: number/*UInt*/;public number: NSNumber}"
+        body = ModelBody(rawValue: raw)
+        XCTAssert(body?.swiftValue == exp)
+    }
 
     func testStringTrimHelpers() {
         var str = "    s d fja    "
@@ -195,6 +203,16 @@ class TypeSwiftTests: XCTestCase {
         XCTAssertNil(test.modelDeclarationPrefix())
     }
     
+    func testStringBodyHelpers() {
+        var test = "{ { } }  }"
+        var exp = "{ { } }"
+        XCTAssert(String(test[test.rangeOfBody()!]) == exp)
+        
+        test = "{} }   "
+        let notExp = "{} }"
+        XCTAssertFalse(notExp == String(test[test.rangeOfBody()!]))
+    }
+    
     static var allTests = [
         ("testVariableDeclaration", testVariableType),
         ("testSwiftNumber", testSwiftNumber),
@@ -203,6 +221,7 @@ class TypeSwiftTests: XCTestCase {
         ("testInterfaceDeclaration", testInterfaceDeclaration),
         ("testInterfaceBody", testInterfaceBody),
         ("testAccessLevel", testAccessLevel),
+        ("testModelBody", testModelBody),
         ("testPropertyDefinition", testPropertyDefinition),
         ("testStringTrimHelpers", testStringTrimHelpers),
         ("testStringPrefixHelpers", testStringPrefixHelpers)

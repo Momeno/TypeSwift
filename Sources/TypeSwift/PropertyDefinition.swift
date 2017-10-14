@@ -19,7 +19,7 @@ enum Permission: RawRepresentable, SwiftStringConvertible {
             return ""
         }
     }
-    
+
     var swiftValue: String {
         switch self {
         case .readAndWrite:
@@ -28,7 +28,16 @@ enum Permission: RawRepresentable, SwiftStringConvertible {
             return "get"
         }
     }
-    
+
+    var letOrVar: String {
+        switch self {
+        case .readAndWrite:
+            return "var"
+        case .readonly:
+            return "let"
+        }
+    }
+
     init?(rawValue: String) {
         if rawValue.isEmpty {
             self = .readAndWrite

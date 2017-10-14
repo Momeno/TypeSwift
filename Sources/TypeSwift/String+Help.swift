@@ -53,6 +53,13 @@ extension String {
         return indices[index]
     }
     
+    func getWord(atIndex index: Int, seperation set: CharacterSet) -> String? {
+        let components = self.trimLeadingWhitespace()
+            .components(separatedBy: set)
+        guard index < components.count else { return nil }
+        return components[index]
+    }
+    
     func hasPrefix(_ prefixType: PrefixType) -> Bool {
         switch prefixType {
         case .interfaceDeclaration:
@@ -60,6 +67,32 @@ extension String {
         case .modelDeclaration:
             return modelDeclarationPrefix() != nil
         }
+    }
+    
+    func rangeOfBody() -> Range<String.Index>? {
+        var lower: String.Index?
+        var upper: String.Index?
+        
+        var forwardCount = 0
+        var matchingCount = 0
+        
+        for (index, element) in self.enumerated() {
+            if element == "{" {
+
+                if forwardCount == 0 {
+                    lower = self.index(self.startIndex, offsetBy: index)
+                }
+
+                forwardCount = forwardCount + 1
+            } else if element == "}" {
+                matchingCount = matchingCount + 1
+                if matchingCount == forwardCount && forwardCount > 0 {
+                    upper = self.index(self.startIndex, offsetBy: index)
+                }
+            }
+        }
+        guard let low = lower, let up = upper else { return nil }
+        return low..<self.index(after:up)
     }
     
     func modelDeclarationPrefix() -> ModelDeclaration? {
