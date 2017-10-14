@@ -160,6 +160,56 @@ class TypeSwiftTests: XCTestCase {
         XCTAssert(body?.swiftValue == exp)
     }
     
+    func testInterface() {
+        var raw = """
+        interface Bar {
+        \treadonly x: number
+        }
+        """
+        
+        let exp = """
+        protocol Bar {
+        \tvar x: NSNumber { get }
+        }
+        """
+        var interface = Interface(rawValue: raw)
+        XCTAssert(interface?.swiftValue == exp)
+        
+        raw = """
+        class Bar {
+        readonly y: number
+        }
+        """
+        interface = Interface(rawValue: raw)
+        XCTAssertNil(interface)
+    }
+    
+    func testModel() {
+        var raw = """
+        class Foo {
+        \tpublic readonly x: number;
+        \tprivate y: number;
+        }
+        """
+        
+        let exp = """
+        struct Foo {
+        \tpublic let x: NSNumber
+        \tprivate var y: NSNumber
+        }
+        """
+        var interface = Model(rawValue: raw)
+        XCTAssert(interface?.swiftValue == exp)
+        
+        raw = """
+        protocol Bar {
+        readonly x: number
+        }
+        """
+        interface = Model(rawValue: raw)
+        XCTAssertNil(interface)
+    }
+    
     func testTypeScript() {
         let raw = """
         interface Bar {
@@ -262,6 +312,8 @@ class TypeSwiftTests: XCTestCase {
         ("testInterfaceBody", testInterfaceBody),
         ("testAccessLevel", testAccessLevel),
         ("testModelBody", testModelBody),
+        ("testModel", testModel),
+        ("testInterface", testInterface),
         ("testTypeScript", testTypeScript),
         ("testPropertyDefinition", testPropertyDefinition),
         ("testStringTrimHelpers", testStringTrimHelpers),
