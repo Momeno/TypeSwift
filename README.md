@@ -38,7 +38,7 @@ interface Bar {
     readonly x: number
 }
 
-class Foo {
+export class Foo {
     public readonly x: number;
     private y: number;
 } class Bar {
@@ -53,7 +53,7 @@ protocol Bar {
     var x: NSNumber { get }
 }
 
-struct Foo {
+public struct Foo {
     public let x: NSNumber
     private var y: NSNumber
 }
