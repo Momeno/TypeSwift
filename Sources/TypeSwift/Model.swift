@@ -10,11 +10,12 @@ import Foundation
 struct Model: RawRepresentable, SwiftStringConvertible {
     let modelDec: ModelDeclaration
     let name: String
+    let protocolConformance: String?
     let body: ModelBody
     let rawValue: String
     
     var swiftValue: String {
-        return "\(modelDec.swiftValue) \(name) \(body.swiftValue)"
+        return "\(modelDec.swiftValue) \(name)\(protocolConformance != nil ? ": " + protocolConformance! : "") \(body.swiftValue)"
     }
 
     init?(rawValue: String) {
@@ -38,10 +39,24 @@ struct Model: RawRepresentable, SwiftStringConvertible {
             return nil
         }
         
-        guard let name = String(suffix.suffix(from: indexOfSpace))
+        guard var name = String(suffix.suffix(from: indexOfSpace))
             .getWord(atIndex: 0, seperation: .whitespaces) else {
                 return nil
         }
+        
+        if let colonIdx = suffix.index(of: ":"), colonIdx < bodyRange.lowerBound {
+            name = name.replacingOccurrences(of: ":", with: "")
+
+            let protocolContainer = String(suffix.suffix(from: suffix.index(after: colonIdx)))
+                .trimLeadingWhitespace()
+            let brace = protocolContainer.index(of: "{")!
+            self.protocolConformance = String(protocolContainer.prefix(upTo: brace))
+                .trimLeadingWhitespace()
+                .trimTrailingWhitespace()
+        } else {
+            self.protocolConformance = nil
+        }
+
         self.modelDec = modelDec
         self.name = name
         self.body = body

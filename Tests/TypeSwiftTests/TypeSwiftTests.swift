@@ -186,14 +186,14 @@ class TypeSwiftTests: XCTestCase {
     
     func testModel() {
         var raw = """
-        class Foo {
+        class Foo: Interface {
         \tpublic readonly x: number;
         \tprivate y: number;
         }
         """
         
         let exp = """
-        struct Foo {
+        struct Foo: Interface {
         \tpublic let x: NSNumber
         \tprivate var y: NSNumber
         }
