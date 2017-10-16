@@ -47,7 +47,29 @@ enum TypeScript: TypeScriptInitializable, SwiftStringConvertible {
         var typescript1: TypeScript!
         var elementRange: Range<String.Index>!
 
-        if let bodyRange = working.rangeOfBody() {
+        if working.hasPrefix(.typeAlias) {
+
+            let typealiasKeyword = working.typealiasDeclarationPrefix()!
+
+            if let endIndex = working.index(of: "\n") ?? working.index(of: ";") {
+                elementRange = working.startIndex..<endIndex
+            } else {
+                elementRange = working.startIndex..<working.endIndex
+            }
+
+            let suffix = String(working.suffix(from: working.index(working.startIndex, offsetBy: typealiasKeyword.count)))
+            let components = suffix.components(separatedBy: "=")
+                .map {
+                    return $0.trimLeadingWhitespace()
+                        .trimTrailingWhitespace()
+            }
+            let nameRaw = components[0]
+            guard let typeRaw = components[1].getWord(atIndex: 0, seperation: .whitespaces) else {
+                throw TypeScriptError.invalidTypealias
+            }
+            typescript1 = TypeScript.`typealias`(nameRaw, try Type(typescript: typeRaw))
+
+        } else if let bodyRange = working.rangeOfBody() {
             elementRange = bodyRange
             let raw = String(working[working.startIndex..<bodyRange.upperBound])
             let body = String(working[bodyRange])
@@ -89,29 +111,7 @@ enum TypeScript: TypeScriptInitializable, SwiftStringConvertible {
                     typescript1 = .module(module, try TypeScript(typescript: inner))
                 }
             }
-        }  else if working.hasPrefix(.typeAlias) {
-
-            let typealiasKeyword = working.typealiasDeclarationPrefix()!
-
-            if let endIndex = working.index(of: "\n") ?? working.index(of: ";") {
-                elementRange = working.startIndex..<endIndex
-            } else {
-                elementRange = working.startIndex..<working.endIndex
-            }
-
-            let suffix = String(working.suffix(from: working.index(working.startIndex, offsetBy: typealiasKeyword.count)))
-            let components = suffix.components(separatedBy: "=")
-                .map {
-                    return $0.trimLeadingWhitespace()
-                        .trimTrailingWhitespace()
-                }
-            let nameRaw = components[0]
-            guard let typeRaw = components[1].getWord(atIndex: 0, seperation: .whitespaces) else {
-                throw TypeScriptError.invalidTypealias
-            }
-            typescript1 = TypeScript.`typealias`(nameRaw, try Type(typescript: typeRaw))
-
-        } else {
+        }  else {
             throw TypeScriptError.unsupportedTypeScript(typescript)
         }
 

@@ -212,7 +212,9 @@ class TypeSwiftTests: XCTestCase {
     
     func testTypeScript() {
         let raw = """
+        type T = Array<number/*UInt*/>
         module Module {
+        type2 V = [string, number]
         namespace NameSpace {
         interface Bar {
         readonly x: number
@@ -228,7 +230,9 @@ class TypeSwiftTests: XCTestCase {
         """
         
         let exp = """
+        typealias T = [UInt]
         struct Module {
+        typealias V = (String, NSNumber)
         struct NameSpace {
         protocol Bar {
         var x: NSNumber { get }
