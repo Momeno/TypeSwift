@@ -186,7 +186,7 @@ class TypeSwiftTests: XCTestCase {
     
     func testModel() {
         var raw = """
-        class Foo: Interface {
+        class Foo implements Interface {
         \tpublic readonly x: number;
         \tprivate y: number;
         }

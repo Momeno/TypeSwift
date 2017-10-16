@@ -10,12 +10,26 @@ import Foundation
 struct Model: RawRepresentable, SwiftStringConvertible {
     let modelDec: ModelDeclaration
     let name: String
-    let protocolConformance: String?
+    let extends: String?
+    let implements: String?
     let body: ModelBody
     let rawValue: String
     
     var swiftValue: String {
-        return "\(modelDec.swiftValue) \(name)\(protocolConformance != nil ? ": " + protocolConformance! : "") \(body.swiftValue)"
+
+        var extends = ""
+        switch (self.extends, self.implements) {
+        case (.some, .some):
+            extends = ": \(self.extends!), \(self.implements!)"
+        case (.some, .none):
+            extends = ": \(self.extends!)"
+        case (.none, .some):
+            extends = ": \(self.implements!)"
+        case (.none, .none):
+            break
+        }
+
+        return "\(modelDec.swiftValue) \(name)\(extends) \(body.swiftValue)"
     }
 
     init?(rawValue: String) {
@@ -39,23 +53,24 @@ struct Model: RawRepresentable, SwiftStringConvertible {
             return nil
         }
         
-        guard var name = String(suffix.suffix(from: indexOfSpace))
+        guard let name = String(suffix.suffix(from: indexOfSpace))
             .getWord(atIndex: 0, seperation: .whitespaces) else {
                 return nil
         }
-        
-        if let colonIdx = suffix.index(of: ":"), colonIdx < bodyRange.lowerBound {
-            name = name.replacingOccurrences(of: ":", with: "")
 
-            let protocolContainer = String(suffix.suffix(from: suffix.index(after: colonIdx)))
-                .trimLeadingWhitespace()
-            let brace = protocolContainer.index(of: "{")!
-            self.protocolConformance = String(protocolContainer.prefix(upTo: brace))
-                .trimLeadingWhitespace()
-                .trimTrailingWhitespace()
-        } else {
-            self.protocolConformance = nil
-        }
+        let brace = suffix.index(of: "{")!
+        if let extends = suffix.prefix(upTo: brace)
+            .range(of: "extends") {
+            let sfx = String(suffix.suffix(from: suffix.index(after: extends.upperBound)))
+
+            self.extends = sfx.getWord(atIndex: 0, seperation: .whitespaces)
+        } else { self.extends = nil }
+
+        if let implements = suffix.prefix(upTo: brace)
+            .range(of: "implements") {
+            let sfx = String(suffix.suffix(from: suffix.index(after: implements.upperBound)))
+            self.implements = sfx.getWord(atIndex: 0, seperation: .whitespaces)
+        } else { self.implements = nil }
 
         self.modelDec = modelDec
         self.name = name
