@@ -8,8 +8,11 @@
 import Foundation
 
 enum PrefixType {
-    case modelDeclaration
-    case interfaceDeclaration
+    case model
+    case interface
+
+    case module
+    case namespace
 }
 
 extension String {
@@ -78,10 +81,14 @@ extension String {
     
     func hasPrefix(_ prefixType: PrefixType) -> Bool {
         switch prefixType {
-        case .interfaceDeclaration:
+        case .interface:
             return interfaceDeclarationPrefix() != nil
-        case .modelDeclaration:
+        case .model:
             return modelDeclarationPrefix() != nil
+        case .namespace:
+            return namespaceDeclarationPrefix() != nil
+        case .module:
+            return moduleDeclarationPrefix() != nil
         }
     }
     
@@ -168,5 +175,21 @@ extension String {
         }
 
         return InterfaceDeclaration(rawValue: String(working[start..<end]))
+    }
+
+    func moduleDeclarationPrefix() -> String? {
+        guard let word = self.getWord(atIndex: 0, seperation: .whitespaces),
+            word == TypeScript.Constants.module else {
+            return nil
+        }
+        return word
+    }
+
+    func namespaceDeclarationPrefix() -> String? {
+        guard let word = self.getWord(atIndex: 0, seperation: .whitespaces),
+            word == TypeScript.Constants.namespace else {
+                return nil
+        }
+        return word
     }
 }

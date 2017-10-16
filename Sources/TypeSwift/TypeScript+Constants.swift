@@ -18,5 +18,8 @@ extension TypeScript {
         static let array = "Array"
         
         static let export = "export"
+
+        static let module = "module"
+        static let namespace = "namespace"
     }
 }

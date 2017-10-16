@@ -10,25 +10,28 @@ import Foundation
 enum TypeScript: TypeScriptInitializable, SwiftStringConvertible {
 
     //case conformingModel(AccessLevel?, ModelDeclaration, String, String/*protocol conformation*/, ModelBody)
+    case empty
     case model(Model)
     case interface(Interface)
-    indirect case composed(TypeScript?, TypeScript?)
+    indirect case module(String, TypeScript)
+    indirect case namespace(String, TypeScript)
+    indirect case composed(TypeScript, TypeScript)
     
     var swiftValue: String {
         switch self {
+        case .empty:
+            return ""
         case .interface(let interface):
             return interface.swiftValue
         case .model(let model):
             return model.swiftValue
+        case .module(let name, let typeScript):
+            return "struct \(name) {\n\(typeScript.swiftValue)\n}"
+        case .namespace(let name, let typeScript):
+            return "struct \(name) {\n\(typeScript.swiftValue)\n}"
         case .composed(let type1, let type2):
-            var composed = ""
-            if let ts1 = type1?.swiftValue {
-                composed += ts1 + "\n\n"
-            }
-            if let ts2 = type2?.swiftValue {
-                composed += ts2 + "\n\n"
-            }
-            return composed.trimTrailingCharacters(in: .newlines)
+            return "\(type1.swiftValue)\n\n\(type2.swiftValue)"
+                .trimTrailingCharacters(in: .newlines)
                 .trimLeadingCharacters(in: .newlines)
         }
     }
@@ -39,57 +42,73 @@ enum TypeScript: TypeScriptInitializable, SwiftStringConvertible {
             .trimTrailingCharacters(in: .whitespacesAndNewlines)
         
         guard let bodyRange = working.rangeOfBody() else {
-            throw TypeScriptError.typeScriptEmpty
+            guard working.trimLeadingWhitespace().trimTrailingWhitespace().isEmpty else {
+                throw TypeScriptError.typeScriptEmpty
+            }
+            self = .empty
+            return
         }
 
         let raw = String(working[working.startIndex..<bodyRange.upperBound])
-        
-        if working.hasPrefix(.interfaceDeclaration) {
+        let body = String(working[bodyRange])
+
+        var typescript1: TypeScript!
+
+        if working.hasPrefix(.interface) {
             
             let interface = try Interface(typescript: raw)
             
-            let typescript1: TypeScript = .interface(interface)
+            typescript1 = .interface(interface)
             
-            var nextTypeScript = ""
-            if working.endIndex > bodyRange.upperBound {
-                let nextTypeScriptStart = working.index(after: bodyRange.upperBound)
-                nextTypeScript = String(working.suffix(from: nextTypeScriptStart))
-                    .trimLeadingCharacters(in: .whitespacesAndNewlines)
+        } else if working.hasPrefix(.model) {
+            let model = try Model(typescript: raw)
+            typescript1 = .model(model)
+        } else if working.hasPrefix(.namespace) {
+            guard let namespace = String(working.suffix(from: working.index(working.startIndex,
+                                                                      offsetBy: working.namespaceDeclarationPrefix()!.count)))
+                .getWord(atIndex: 0, seperation: .whitespaces) else {
+
+                throw TypeScriptError.cannotDeclareNamespaceWithoutBody
             }
 
-            
-            if (nextTypeScript.hasPrefix(.interfaceDeclaration) ||
-                nextTypeScript.hasPrefix(.modelDeclaration)) {
-                
-                let typescript2 = try TypeScript(typescript: nextTypeScript)
-                self = .composed(typescript1, typescript2)
+            if body.count <= "{ }".count {
+                typescript1 = .namespace(namespace, .empty)
             } else {
-                self = typescript1
+                let inner = String(body[body.index(after: body.startIndex)..<body.index(before: body.endIndex)])
+                typescript1 = .namespace(namespace, try TypeScript(typescript: inner))
             }
-            
-        } else if working.hasPrefix(.modelDeclaration) {
-            
-            let model = try Model(typescript: raw)
-            
-            var nextTypeScript = ""
-            
-            if working.endIndex > bodyRange.upperBound {
-                let nextTypeScriptStart = working.index(after: bodyRange.upperBound)
-                nextTypeScript = String(working.suffix(from: nextTypeScriptStart))
-                    .trimLeadingCharacters(in: .whitespacesAndNewlines)
+        } else if working.hasPrefix(.module) {
+            guard let module = String(working.suffix(from: working.index(working.startIndex,
+                                                                      offsetBy: working.moduleDeclarationPrefix()!.count)))
+                .getWord(atIndex: 0, seperation: .whitespaces) else {
+                throw TypeScriptError.cannotDeclareModuleWithoutBody
             }
-            
-            let typescript1: TypeScript = .model(model)
-            if (nextTypeScript.hasPrefix(.interfaceDeclaration) ||
-                nextTypeScript.hasPrefix(.modelDeclaration)) {
-                
-                let typescript2 = try TypeScript(typescript: nextTypeScript)
-                self = .composed(typescript1, typescript2)
+
+            if body.count <= "{ }".count {
+                typescript1 = .namespace(module, .empty)
             } else {
-                self = typescript1
+                let inner = String(body[body.index(after: body.startIndex)..<body.index(before: body.endIndex)])
+                typescript1 = .module(module, try TypeScript(typescript: inner))
             }
         } else {
             throw TypeScriptError.unsupportedTypeScript(typescript)
+        }
+
+        var nextTypeScript = ""
+        if working.endIndex > bodyRange.upperBound {
+            let nextTypeScriptStart = working.index(after: bodyRange.upperBound)
+            nextTypeScript = String(working.suffix(from: nextTypeScriptStart))
+                .trimLeadingCharacters(in: .whitespacesAndNewlines)
+        }
+
+
+        if (nextTypeScript.hasPrefix(.interface) ||
+            nextTypeScript.hasPrefix(.model)) {
+
+            let typescript2 = try TypeScript(typescript: nextTypeScript)
+            self = .composed(typescript1, typescript2)
+        } else {
+            self = typescript1
         }
     }
 }

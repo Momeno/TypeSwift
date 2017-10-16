@@ -212,10 +212,13 @@ class TypeSwiftTests: XCTestCase {
     
     func testTypeScript() {
         let raw = """
+        module Module {
+        namespace NameSpace {
         interface Bar {
         readonly x: number
         }
-
+        }
+        }
         class Foo {
         public readonly x: number;
         private y: number;
@@ -225,8 +228,12 @@ class TypeSwiftTests: XCTestCase {
         """
         
         let exp = """
+        struct Module {
+        struct NameSpace {
         protocol Bar {
         var x: NSNumber { get }
+        }
+        }
         }
 
         struct Foo {
