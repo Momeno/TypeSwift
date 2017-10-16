@@ -33,7 +33,7 @@ enum TypeScript: TypeScriptInitializable, SwiftStringConvertible {
         case .namespace(let name, let typeScript):
             return "struct \(name) {\n\(typeScript.swiftValue)\n}"
         case .composed(let type1, let type2):
-            return "\(type1.swiftValue)\n\n\(type2.swiftValue)"
+            return "\(type1.swiftValue)\n\(type2.swiftValue)"
                 .trimTrailingCharacters(in: .newlines)
                 .trimLeadingCharacters(in: .newlines)
         }
@@ -62,9 +62,10 @@ enum TypeScript: TypeScriptInitializable, SwiftStringConvertible {
                 .map {
                     return $0.trimLeadingWhitespace()
                         .trimTrailingWhitespace()
-            }
+                }
             let nameRaw = components[0]
-            guard let typeRaw = components[1].getWord(atIndex: 0, seperation: .whitespaces) else {
+            guard let typeRaw = components[1].trimLeadingWhitespace()
+                .getWord(atIndex: 0, seperation: CharacterSet(charactersIn: "\n;")) else {
                 throw TypeScriptError.invalidTypealias
             }
             typescript1 = TypeScript.`typealias`(nameRaw, try Type(typescript: typeRaw))
@@ -122,9 +123,7 @@ enum TypeScript: TypeScriptInitializable, SwiftStringConvertible {
                 .trimLeadingCharacters(in: .whitespacesAndNewlines)
         }
 
-        if (nextTypeScript.hasPrefix(.interface) ||
-            nextTypeScript.hasPrefix(.model)) {
-
+        if (try? TypeScript(typescript: nextTypeScript) ?? nil) != nil {
             let typescript2 = try TypeScript(typescript: nextTypeScript)
             self = .composed(typescript1, typescript2)
         } else {

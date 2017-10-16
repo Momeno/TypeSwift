@@ -214,7 +214,7 @@ class TypeSwiftTests: XCTestCase {
         let raw = """
         type T = Array<number/*UInt*/>
         module Module {
-        type2 V = [string, number]
+        type V = [string, number]
         namespace NameSpace {
         interface Bar {
         readonly x: number
@@ -239,12 +239,10 @@ class TypeSwiftTests: XCTestCase {
         }
         }
         }
-
         struct Foo {
         public let x: NSNumber
         private var y: NSNumber
         }
-
         struct Bar {
         internal var property: [(Bool, String)]
         }
