@@ -8,7 +8,7 @@
 import Foundation
 
 enum PrefixType {
-    case `typealias`
+    case typeAlias
 
     case model
     case interface
@@ -83,7 +83,7 @@ extension String {
     
     func hasPrefix(_ prefixType: PrefixType) -> Bool {
         switch prefixType {
-        case `typealias`:
+        case .typeAlias:
             return typealiasDeclarationPrefix() != nil
         case .interface:
             return interfaceDeclarationPrefix() != nil

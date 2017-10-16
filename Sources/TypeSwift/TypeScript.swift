@@ -89,7 +89,7 @@ enum TypeScript: TypeScriptInitializable, SwiftStringConvertible {
                     typescript1 = .module(module, try TypeScript(typescript: inner))
                 }
             }
-        }  else if working.hasPrefix(.`typealias`) {
+        }  else if working.hasPrefix(.typeAlias) {
 
             let typealiasKeyword = working.typealiasDeclarationPrefix()!
 
