@@ -21,5 +21,7 @@ extension TypeScript {
 
         static let module = "module"
         static let namespace = "namespace"
+
+        static let type = "type"
     }
 }

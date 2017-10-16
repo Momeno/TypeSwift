@@ -8,6 +8,8 @@
 import Foundation
 
 enum PrefixType {
+    case `typealias`
+
     case model
     case interface
 
@@ -81,6 +83,8 @@ extension String {
     
     func hasPrefix(_ prefixType: PrefixType) -> Bool {
         switch prefixType {
+        case `typealias`:
+            return typealiasDeclarationPrefix() != nil
         case .interface:
             return interfaceDeclarationPrefix() != nil
         case .model:
@@ -175,6 +179,14 @@ extension String {
         }
 
         return InterfaceDeclaration(rawValue: String(working[start..<end]))
+    }
+
+    func typealiasDeclarationPrefix() -> String? {
+        guard let word = self.getWord(atIndex: 0, seperation: .whitespaces),
+            word == TypeScript.Constants.type else {
+                return nil
+        }
+        return word
     }
 
     func moduleDeclarationPrefix() -> String? {
