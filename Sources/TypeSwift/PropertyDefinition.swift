@@ -49,21 +49,10 @@ enum Permission: RawRepresentable, SwiftStringConvertible {
     }
 }
 
-enum PropertyDefinition: RawRepresentable, SwiftStringConvertible {
+enum PropertyDefinition: TypeScriptInitializable, SwiftStringConvertible {
     case optional(String, Type)
     case definite(String, Type)
     case indexSignature(String, Type, Type)
-    
-    var rawValue: String {
-        switch self {
-        case .optional(let name, let type):
-            return "\(name)?: \(type.rawValue)"
-        case .definite(let name, let type):
-            return "\(name): \(type.rawValue)"
-        case .indexSignature(let name, let keyType, let type):
-            return "[\(name):\(keyType.rawValue)]: \(type.rawValue)"
-        }
-    }
     
     var swiftValue: String {
         switch self {
@@ -75,10 +64,10 @@ enum PropertyDefinition: RawRepresentable, SwiftStringConvertible {
             fatalError("Index Signatures are not supported")
         }
     }
-    
-    init?(rawValue: String) {
-        guard let first = rawValue.first else {
-            return nil
+
+    init(typescript: String) throws {
+        guard let first = typescript.first else {
+            throw TypeScriptError.invalidDeclaration(typescript)
         }
 
         if first == "[" {
@@ -86,26 +75,24 @@ enum PropertyDefinition: RawRepresentable, SwiftStringConvertible {
             let msg = "[ at the start of a property declaration is a sign of an Index Signature, which is not supported"
             fatalError(msg)
         } else {
-            let components = rawValue.components(separatedBy: ":")
+            let components = typescript.components(separatedBy: ":")
 
             guard components.count == 2 else {
-                return nil
+                throw TypeScriptError.invalidDeclaration(typescript)
             }
-            
+
             var isOptional = false
-            
+
             var name = components[0].trimmingCharacters(in: .whitespaces)
             let typeRaw = components[1].trimmingCharacters(in: .whitespaces)
 
-            guard let type = Type(rawValue: typeRaw) else {
-                return nil
-            }
+            let type = try Type(typescript: typeRaw)
 
             if name.hasSuffix("?") {
                 isOptional = true
                 name = String(name[name.startIndex..<name.index(before: name.endIndex)])
             }
-            
+
             if isOptional {
                 self = .optional(name, type)
             } else {

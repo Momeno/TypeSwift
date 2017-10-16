@@ -7,30 +7,12 @@
 
 import Foundation
 
-enum TypeScript: RawRepresentable, SwiftStringConvertible {
+enum TypeScript: TypeScriptInitializable, SwiftStringConvertible {
 
     //case conformingModel(AccessLevel?, ModelDeclaration, String, String/*protocol conformation*/, ModelBody)
     case model(Model)
     case interface(Interface)
     indirect case composed(TypeScript?, TypeScript?)
-
-    var rawValue: String {
-        switch self {
-        case .interface(let interface):
-            return interface.rawValue
-        case .model(let model):
-            return model.rawValue
-        case .composed(let typescript1, let typescript2):
-            var composed = ""
-            if let ts1 = typescript1?.rawValue {
-                composed += ts1 + "\n\n"
-            }
-            if let ts2 = typescript2?.rawValue {
-                composed += ts2 + "\n\n"
-            }
-            return composed
-        }
-    }
     
     var swiftValue: String {
         switch self {
@@ -51,22 +33,20 @@ enum TypeScript: RawRepresentable, SwiftStringConvertible {
         }
     }
     
-    init?(rawValue: String) {
-        let working = rawValue
+    init(typescript: String) throws {
+        let working = typescript
             .trimLeadingCharacters(in: .whitespacesAndNewlines)
             .trimTrailingCharacters(in: .whitespacesAndNewlines)
         
         guard let bodyRange = working.rangeOfBody() else {
-            return nil
+            throw TypeScriptError.typeScriptEmpty
         }
 
         let raw = String(working[working.startIndex..<bodyRange.upperBound])
         
         if working.hasPrefix(.interfaceDeclaration) {
             
-            guard let interface = Interface(rawValue: raw) else {
-                return nil
-            }
+            let interface = try Interface(typescript: raw)
             
             let typescript1: TypeScript = .interface(interface)
             
@@ -81,7 +61,7 @@ enum TypeScript: RawRepresentable, SwiftStringConvertible {
             if (nextTypeScript.hasPrefix(.interfaceDeclaration) ||
                 nextTypeScript.hasPrefix(.modelDeclaration)) {
                 
-                let typescript2 = TypeScript(rawValue: nextTypeScript)
+                let typescript2 = try TypeScript(typescript: nextTypeScript)
                 self = .composed(typescript1, typescript2)
             } else {
                 self = typescript1
@@ -89,9 +69,7 @@ enum TypeScript: RawRepresentable, SwiftStringConvertible {
             
         } else if working.hasPrefix(.modelDeclaration) {
             
-            guard let model = Model(rawValue: raw) else {
-                return nil
-            }
+            let model = try Model(typescript: raw)
             
             var nextTypeScript = ""
             
@@ -105,13 +83,13 @@ enum TypeScript: RawRepresentable, SwiftStringConvertible {
             if (nextTypeScript.hasPrefix(.interfaceDeclaration) ||
                 nextTypeScript.hasPrefix(.modelDeclaration)) {
                 
-                let typescript2 = TypeScript(rawValue: nextTypeScript)
+                let typescript2 = try TypeScript(typescript: nextTypeScript)
                 self = .composed(typescript1, typescript2)
             } else {
                 self = typescript1
             }
         } else {
-            return nil
+            throw TypeScriptError.unsupportedTypeScript(typescript)
         }
     }
 }

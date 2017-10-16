@@ -28,34 +28,34 @@ class TypeSwiftTests: XCTestCase {
     }
     
     func testType() {
-        var type: Type? = Type(rawValue: "boolean")
+        var type: Type? = try! Type(typescript: "boolean")
         XCTAssert(type?.swiftValue == "Bool")
 
-        type = Type(rawValue: "number")
+        type = try! Type(typescript: "number")
         XCTAssert(type?.swiftValue == "NSNumber")
         
-        type = Type(rawValue: "number/*Float*/")
+        type = try! Type(typescript: "number/*Float*/")
         XCTAssert(type?.swiftValue == "Float")
         
-        type = Type(rawValue: "Array<number/*Float*/>")
+        type = try! Type(typescript: "Array<number/*Float*/>")
         XCTAssert(type?.swiftValue == "[Float]")
         
-        type = Type(rawValue: "Array<Array<boolean>>")
+        type = try! Type(typescript: "Array<Array<boolean>>")
         XCTAssert(type?.swiftValue == "[[Bool]]")
         
-        type = Type(rawValue: "[number/*Float*/, string]")
+        type = try! Type(typescript: "[number/*Float*/, string]")
         XCTAssert(type?.swiftValue == "(Float, String)")
         
-        type = Type(rawValue: "[number/*Float*/, [string, [number/*Int*/, boolean]]]")
+        type = try! Type(typescript: "[number/*Float*/, [string, [number/*Int*/, boolean]]]")
         XCTAssert(type?.swiftValue == "(Float, (String, (Int, Bool)))")
         
-        type = Type(rawValue: "[[string, [number/*Int*/, boolean]], number/*Float*/]")
+        type = try! Type(typescript: "[[string, [number/*Int*/, boolean]], number/*Float*/]")
         XCTAssert(type?.swiftValue == "((String, (Int, Bool)), Float)")
         
-        type = Type(rawValue: "CustomType")
+        type = try! Type(typescript: "CustomType")
         XCTAssert(type?.swiftValue == "CustomType")
         
-        type = Type(rawValue: "customType")
+        type = try? Type(typescript: "customType")
         XCTAssertNil(type)
     }
     
@@ -79,9 +79,9 @@ class TypeSwiftTests: XCTestCase {
     }
     
     func testInterfaceBody() {
-        var body = InterfaceBody(rawValue: "{readonly person: [string, House]\n\treadonly street: number/*UInt*/; readonly number: number/*UInt*/ }")
+        var body = try! InterfaceBody(typescript: "{readonly person: [string, House]\n\treadonly street: number/*UInt*/; readonly number: number/*UInt*/ }")
         var expected = "{\n\tvar person: (String, House) { get }\n\tvar street: UInt { get }\n\tvar number: UInt { get }\n}"
-        XCTAssert(body?.swiftValue == expected)
+        XCTAssert(body.swiftValue == expected)
         
         var raw = """
         {
@@ -90,7 +90,7 @@ class TypeSwiftTests: XCTestCase {
         \tnumber: number
         }
         """
-        body = InterfaceBody(rawValue: raw)
+        body = try! InterfaceBody(typescript: raw)
         expected = """
         {
         \tvar people: [(NSNumber, Person)] { get set }
@@ -99,7 +99,7 @@ class TypeSwiftTests: XCTestCase {
         }
         """
         
-        XCTAssert(body?.swiftValue == expected)
+        XCTAssert(body.swiftValue == expected)
         
         raw = """
         {
@@ -108,7 +108,7 @@ class TypeSwiftTests: XCTestCase {
         \tnumber: number
         }
         """
-        XCTAssertNil(InterfaceBody(rawValue: raw))
+        XCTAssertNil(try? InterfaceBody(typescript: raw))
         
     }
     
@@ -124,16 +124,16 @@ class TypeSwiftTests: XCTestCase {
     }
     
     func testPropertyDefinition() {
-        var property = PropertyDefinition(rawValue: "string: string")
+        var property: PropertyDefinition? = try! PropertyDefinition(typescript: "string: string")
         XCTAssert(property?.swiftValue == "string: String")
 
-        property = PropertyDefinition(rawValue: "name:[string, number]")
+        property = try! PropertyDefinition(typescript: "name:[string, number]")
         XCTAssert(property?.swiftValue == "name: (String, NSNumber)")
         
-        property = PropertyDefinition(rawValue: "optional?: [boolean, Array<number/*Int*/>]")
+        property = try! PropertyDefinition(typescript: "optional?: [boolean, Array<number/*Int*/>]")
         XCTAssert(property?.swiftValue == "optional: (Bool, [Int])?")
         
-        property = PropertyDefinition(rawValue: "optional? string")
+        property = try? PropertyDefinition(typescript: "optional? string")
         XCTAssertNil(property)
     }
     
@@ -152,12 +152,12 @@ class TypeSwiftTests: XCTestCase {
         \tpublic var number: NSNumber
         }
         """
-        var body = ModelBody(rawValue: raw)
-        XCTAssert(body?.swiftValue == exp)
+        var body = try! ModelBody(typescript: raw)
+        XCTAssert(body.swiftValue == exp)
         
         raw = "{protected readonly people :Array<[number, Person]>;private street: number/*UInt*/;public number: NSNumber}"
-        body = ModelBody(rawValue: raw)
-        XCTAssert(body?.swiftValue == exp)
+        body = try! ModelBody(typescript: raw)
+        XCTAssert(body.swiftValue == exp)
     }
     
     func testInterface() {
@@ -172,7 +172,7 @@ class TypeSwiftTests: XCTestCase {
         \tvar x: NSNumber { get }
         }
         """
-        var interface = Interface(rawValue: raw)
+        var interface: Interface? = try! Interface(typescript: raw)
         XCTAssert(interface?.swiftValue == exp)
         
         raw = """
@@ -180,7 +180,7 @@ class TypeSwiftTests: XCTestCase {
         readonly y: number
         }
         """
-        interface = Interface(rawValue: raw)
+        interface = try? Interface(typescript: raw)
         XCTAssertNil(interface)
     }
     
@@ -198,16 +198,16 @@ class TypeSwiftTests: XCTestCase {
         \tprivate var y: NSNumber
         }
         """
-        var interface = Model(rawValue: raw)
-        XCTAssert(interface?.swiftValue == exp)
+        var model: Model? = try! Model(typescript: raw)
+        XCTAssert(model?.swiftValue == exp)
         
         raw = """
         protocol Bar {
         readonly x: number
         }
         """
-        interface = Model(rawValue: raw)
-        XCTAssertNil(interface)
+        model = try? Model(typescript: raw)
+        XCTAssertNil(model)
     }
     
     func testTypeScript() {
@@ -239,7 +239,7 @@ class TypeSwiftTests: XCTestCase {
         }
         """
 
-        XCTAssert(TypeScript(rawValue: raw)?.swiftValue == exp)
+        XCTAssert((try! TypeScript(typescript: raw)).swiftValue == exp)
     }
 
     func testStringTrimHelpers() {

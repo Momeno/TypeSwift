@@ -7,14 +7,13 @@
 
 import Foundation
 
-struct Model: RawRepresentable, SwiftStringConvertible {
+struct Model: TypeScriptInitializable, SwiftStringConvertible {
     let modelDec: ModelDeclaration
     let name: String
     let extends: String?
     let implements: String?
     let body: ModelBody
-    let rawValue: String
-    
+
     var swiftValue: String {
 
         var extends = ""
@@ -32,30 +31,30 @@ struct Model: RawRepresentable, SwiftStringConvertible {
         return "\(modelDec.swiftValue) \(name)\(extends) \(body.swiftValue)"
     }
 
-    init?(rawValue: String) {
-        let working = rawValue
+    init(typescript: String) throws {
+        let working = typescript
             .trimLeadingCharacters(in: .whitespacesAndNewlines)
             .trimTrailingCharacters(in: .whitespacesAndNewlines)
 
         guard let bodyRange = working.rangeOfBody() else {
-            return nil
+            throw TypeScriptError.cannotDeclareModelWithoutBody
         }
-        guard let body = ModelBody(rawValue: String(working[bodyRange])) else {
-            return nil
-        }
+
+        let body = try ModelBody(typescript: String(working[bodyRange]))
+
         guard let modelDec = working.modelDeclarationPrefix() else {
-            return nil
+            throw TypeScriptError.invalidDeclaration(String(working.prefix(upTo: bodyRange.upperBound)))
         }
         
         let offsetedIndex = working.index(working.startIndex, offsetBy: modelDec.rawValue.count)
         let suffix = String(working.suffix(from: offsetedIndex))
         guard let indexOfSpace = suffix.index(of: " ") else {
-            return nil
+           throw TypeScriptError.invalidDeclaration(String(typescript.prefix(upTo: bodyRange.upperBound)))
         }
         
         guard let name = String(suffix.suffix(from: indexOfSpace))
             .getWord(atIndex: 0, seperation: .whitespaces) else {
-                return nil
+                throw TypeScriptError.invalidDeclaration(String(typescript.prefix(upTo: bodyRange.upperBound)))
         }
 
         let brace = suffix.index(of: "{")!
@@ -75,6 +74,5 @@ struct Model: RawRepresentable, SwiftStringConvertible {
         self.modelDec = modelDec
         self.name = name
         self.body = body
-        self.rawValue = rawValue
     }
 }

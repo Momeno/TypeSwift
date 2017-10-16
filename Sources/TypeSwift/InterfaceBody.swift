@@ -7,9 +7,8 @@
 
 import Foundation
 
-struct InterfaceBody: RawRepresentable, SwiftStringConvertible {
+struct InterfaceBody: TypeScriptInitializable, SwiftStringConvertible {
 
-    let rawValue: String
     let properties: [(perm: Permission, def: PropertyDefinition)]
 
     var swiftValue: String {
@@ -19,20 +18,23 @@ struct InterfaceBody: RawRepresentable, SwiftStringConvertible {
         .joined(separator: "\n") + "\n}"
     }
 
-    init?(rawValue: String) {
-        guard let index = rawValue.index(of: "{") else { return nil }
-        let start = rawValue.index(after: index)
-        
-        guard let end = rawValue.rangeOfCharacter(from: CharacterSet(charactersIn:"}"), options: .backwards, range: nil)?.lowerBound else {
-            return nil
+    init(typescript: String) throws {
+        guard let index = typescript.index(of: "{") else {
+            throw TypeScriptError.cannotDeclareInterfaceWithoutBody
         }
 
-        let workingString = rawValue[start..<end]
+        let start = typescript.index(after: index)
+
+        guard let end = typescript.rangeOfCharacter(from: CharacterSet(charactersIn:"}"), options: .backwards, range: nil)?.lowerBound else {
+            throw TypeScriptError.cannotDeclareInterfaceWithoutBody
+        }
+
+        let workingString = typescript[start..<end]
         let components = workingString.components(separatedBy: CharacterSet(charactersIn: "\n;"))
         var arr: [(Permission, PropertyDefinition)] = []
         for element in components {
             if element.isEmpty { continue }
-            
+
             var element = element
             element = element.trimLeadingWhitespace()
                 .trimTrailingWhitespace()
@@ -48,13 +50,10 @@ struct InterfaceBody: RawRepresentable, SwiftStringConvertible {
                     .trimLeadingWhitespace()
             }
 
-            guard let definition = PropertyDefinition(rawValue: element) else {
-                return nil
-            }
+            let definition = try PropertyDefinition(typescript: element)
 
             arr.append((permission, definition))
         }
         self.properties = arr
-        self.rawValue = rawValue
     }
 }

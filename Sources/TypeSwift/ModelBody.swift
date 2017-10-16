@@ -7,9 +7,8 @@
 
 import Foundation
 
-struct ModelBody: RawRepresentable, SwiftStringConvertible {
+struct ModelBody: TypeScriptInitializable, SwiftStringConvertible {
     
-    let rawValue: String
     let properties: [(access: PropertyAccessLevel, perm: Permission, def: PropertyDefinition)]
     
     var swiftValue: String {
@@ -20,15 +19,18 @@ struct ModelBody: RawRepresentable, SwiftStringConvertible {
         return "{\n\(joined)\n}"
     }
     
-    init?(rawValue: String) {
-        guard let index = rawValue.index(of: "{") else { return nil }
-        let start = rawValue.index(after: index)
+    init(typescript: String) throws {
+        guard let index = typescript.index(of: "{") else {
+            throw TypeScriptError.cannotDeclareModelWithoutBody
+        }
+
+        let start = typescript.index(after: index)
         
-        guard let end = rawValue.rangeOfCharacter(from: CharacterSet(charactersIn:"}"), options: .backwards, range: nil)?.lowerBound else {
-            return nil
+        guard let end = typescript.rangeOfCharacter(from: CharacterSet(charactersIn:"}"), options: .backwards, range: nil)?.lowerBound else {
+            throw TypeScriptError.cannotDeclareModelWithoutBody
         }
         
-        let workingString = rawValue[start..<end]
+        let workingString = typescript[start..<end]
         let components = workingString.components(separatedBy: CharacterSet(charactersIn: "\n;"))
 
         var arr: [(PropertyAccessLevel, Permission, PropertyDefinition)] = []
@@ -42,19 +44,15 @@ struct ModelBody: RawRepresentable, SwiftStringConvertible {
             
             var access = PropertyAccessLevel.`public`
             
-            guard let firstWord = element.getWord(atIndex: 0, seperation: .whitespaces) else {
-                return nil
+            guard let firstWord = element.getWord(atIndex: 0, seperation: .whitespaces),
+                let secondWord = element.getWord(atIndex: 1, seperation: .whitespaces) else {
+                throw TypeScriptError.invalidDeclaration(element)
             }
-            
-            guard let secondWord = element.getWord(atIndex: 1, seperation: .whitespaces) else {
-                return nil
-            }
-            
+
             var permission: Permission = .readAndWrite
             if secondWord.hasPrefix(":") || firstWord.hasSuffix(":") {
-                guard let definition = PropertyDefinition(rawValue: element) else {
-                    return nil
-                }
+                let definition = try PropertyDefinition(typescript: element)
+
                 arr.append((access, permission, definition))
                 continue
             } else if let acc = PropertyAccessLevel(rawValue: firstWord) {
@@ -64,7 +62,7 @@ struct ModelBody: RawRepresentable, SwiftStringConvertible {
             }
             
             guard let word = element.getWord(atIndex: 0, seperation: .whitespaces) else {
-                return nil
+                throw TypeScriptError.invalidDeclaration(element)
             }
 
             let wordAfter = element.getWord(atIndex: 1, seperation: .whitespaces)
@@ -80,13 +78,10 @@ struct ModelBody: RawRepresentable, SwiftStringConvertible {
                     .trimLeadingWhitespace()
             }
             
-            guard let definition = PropertyDefinition(rawValue: element) else {
-                return nil
-            }
+            let definition = try PropertyDefinition(typescript: element)
             
             arr.append((access, permission, definition))
         }
         self.properties = arr
-        self.rawValue = rawValue
     }
 }

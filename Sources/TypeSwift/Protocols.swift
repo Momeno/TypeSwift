@@ -10,3 +10,7 @@ import Foundation
 protocol SwiftStringConvertible {
     var swiftValue: String { get }
 }
+
+protocol TypeScriptInitializable {
+    init(typescript: String) throws
+}
