@@ -23,3 +23,17 @@ enum PropertyAccessLevel: String, SwiftStringConvertible {
         }
     }
 }
+
+enum PropertyScope: String, SwiftStringConvertible {
+    case `static`
+    case none
+
+    var swiftValue: String {
+        switch self {
+        case .none:
+            return ""
+        default:
+            return self.rawValue
+        }
+    }
+}

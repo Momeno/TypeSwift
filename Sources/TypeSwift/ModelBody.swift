@@ -9,11 +9,21 @@ import Foundation
 
 struct ModelBody: TypeScriptInitializable, SwiftStringConvertible {
     
-    let properties: [(access: PropertyAccessLevel, perm: Permission, def: PropertyDefinition)]
+    let properties: [(access: PropertyAccessLevel, scope: PropertyScope, perm: Permission, def: PropertyDefinition)]
     
     var swiftValue: String {
-        let joined = properties.map { access, perm, def in
-            "\t\(access.swiftValue) \(perm.letOrVar) \(def.swiftValue)"
+        let joined = properties.map {
+                let access = $0.0
+                let scope = $0.1
+                let perm = $0.2
+                let def = $0.3
+
+                switch scope {
+                case .none:
+                    return "\(access.swiftValue)\(scope.swiftValue) \(perm.letOrVar) \(def.swiftValue)"
+                case .`static`:
+                    return "\(access.swiftValue) \(scope.swiftValue) \(perm.letOrVar) \(def.swiftValue)"
+                }
             }
             .joined(separator: "\n")
         return "{\n\(joined)\n}"
@@ -33,7 +43,7 @@ struct ModelBody: TypeScriptInitializable, SwiftStringConvertible {
         let workingString = typescript[start..<end]
         let components = workingString.components(separatedBy: CharacterSet(charactersIn: "\n;"))
 
-        var arr: [(PropertyAccessLevel, Permission, PropertyDefinition)] = []
+        var arr: [(PropertyAccessLevel, PropertyScope, Permission, PropertyDefinition)] = []
 
         for element in components {
             if element.isEmpty { continue }
@@ -43,44 +53,54 @@ struct ModelBody: TypeScriptInitializable, SwiftStringConvertible {
                 .trimTrailingWhitespace()
             
             var access = PropertyAccessLevel.`public`
-            
-            guard let firstWord = element.getWord(atIndex: 0, seperation: .whitespaces),
-                let secondWord = element.getWord(atIndex: 1, seperation: .whitespaces) else {
-                throw TypeScriptError.invalidDeclaration(element)
-            }
-
+            var scope: PropertyScope = .none
             var permission: Permission = .readAndWrite
-            if secondWord.hasPrefix(":") || firstWord.hasSuffix(":") {
-                let definition = try PropertyDefinition(typescript: element)
 
-                arr.append((access, permission, definition))
-                continue
-            } else if let acc = PropertyAccessLevel(rawValue: firstWord) {
-                access = acc
-                element = String(element.suffix(from: element.range(of: firstWord)!.upperBound))
-                    .trimLeadingWhitespace()
-            }
-            
-            guard let word = element.getWord(atIndex: 0, seperation: .whitespaces) else {
+            let properties = element.components(separatedBy: ":")
+                .map {
+                    $0.trimLeadingWhitespace()
+                        .trimTrailingWhitespace()
+                }
+                .filter {
+                    $0.isEmpty == false
+                }
+
+            guard properties.count == 2 else {
                 throw TypeScriptError.invalidDeclaration(element)
             }
 
-            let wordAfter = element.getWord(atIndex: 1, seperation: .whitespaces)
-            
-            let readonly = TypeScript.Constants.readonly
-            if word == readonly
-                && word.hasSuffix(":") == false
-                && wordAfter?.hasPrefix(":") == false {
+            let nameDeclarationObjects = properties.first?
+                .components(separatedBy: " ")
+                .map { str in
+                    str.trimTrailingWhitespace()
+                        .trimLeadingWhitespace()
+                }
+                .filter {
+                    return $0.isEmpty == false
+                }
 
-                permission = .readonly
-                element = String(element.suffix(from: element.index(element.startIndex,
-                                                             offsetBy: readonly.count)))
-                    .trimLeadingWhitespace()
+            guard let nameDeclaration = nameDeclarationObjects else {
+                throw TypeScriptError.invalidDeclaration(element)
             }
+
+            guard let name = nameDeclaration.last else {
+                throw TypeScriptError.invalidDeclaration(element)
+            }
+
+            for element in nameDeclaration {
+                if let scp = PropertyScope(rawValue: element) {
+                    scope = scp
+                } else if let acc = PropertyAccessLevel(rawValue: element) {
+                    access = acc
+                } else if let perm = Permission(rawValue: element) {
+                    permission = perm
+                }
+            }
+
+            let definitionRaw = "\(name): \(properties[1])"
+            let definition = try PropertyDefinition(typescript: definitionRaw)
             
-            let definition = try PropertyDefinition(typescript: element)
-            
-            arr.append((access, permission, definition))
+            arr.append((access, scope, permission, definition))
         }
         self.properties = arr
     }

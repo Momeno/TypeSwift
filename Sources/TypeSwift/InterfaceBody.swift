@@ -13,7 +13,7 @@ struct InterfaceBody: TypeScriptInitializable, SwiftStringConvertible {
 
     var swiftValue: String {
         return "{\n" + self.properties.map { perm, def in
-            return "\tvar \(def.swiftValue) { \(perm.swiftValue) }"
+            return "var \(def.swiftValue) { \(perm.swiftValue) }"
         }
         .joined(separator: "\n") + "\n}"
     }

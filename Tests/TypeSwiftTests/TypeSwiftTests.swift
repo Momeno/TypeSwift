@@ -80,22 +80,22 @@ class TypeSwiftTests: XCTestCase {
     
     func testInterfaceBody() {
         var body = try! InterfaceBody(typescript: "{readonly person: [string, House]\n\treadonly street: number/*UInt*/; readonly number: number/*UInt*/ }")
-        var expected = "{\n\tvar person: (String, House) { get }\n\tvar street: UInt { get }\n\tvar number: UInt { get }\n}"
+        var expected = "{\nvar person: (String, House) { get }\nvar street: UInt { get }\nvar number: UInt { get }\n}"
         XCTAssert(body.swiftValue == expected)
         
         var raw = """
         {
-        \tpeople: Array<[number, Person]>;
-        \treadonly street? : number/*UInt*/
-        \tnumber: number
+        people: Array<[number, Person]>;
+        readonly street? : number/*UInt*/
+        number: number
         }
         """
         body = try! InterfaceBody(typescript: raw)
         expected = """
         {
-        \tvar people: [(NSNumber, Person)] { get set }
-        \tvar street: UInt? { get }
-        \tvar number: NSNumber { get set }
+        var people: [(NSNumber, Person)] { get set }
+        var street: UInt? { get }
+        var number: NSNumber { get set }
         }
         """
         
@@ -103,9 +103,9 @@ class TypeSwiftTests: XCTestCase {
         
         raw = """
         {
-        \tpeople: Array<[numbers, Person]>;
-        \tstreet: number/*UInt*/
-        \tnumber: number
+        people: Array<[numbers, Person]>;
+        street: number/*UInt*/
+        number: number
         }
         """
         XCTAssertNil(try? InterfaceBody(typescript: raw))
@@ -140,22 +140,22 @@ class TypeSwiftTests: XCTestCase {
     func testModelBody() {
         var raw = """
           class Some {
-        \tprotected readonly people: Array<[number, Person]>
-        \tprivate street: number/*UInt*/
-        \tpublic number: number
+        protected readonly people: Array<[number, Person]>
+        private static street: number/*UInt*/
+        public number: number
         }
         """
         let exp = """
         {
-        \tinternal let people: [(NSNumber, Person)]
-        \tprivate var street: UInt
-        \tpublic var number: NSNumber
+        internal let people: [(NSNumber, Person)]
+        private static var street: UInt
+        public var number: NSNumber
         }
         """
         var body = try! ModelBody(typescript: raw)
         XCTAssert(body.swiftValue == exp)
         
-        raw = "{protected readonly people :Array<[number, Person]>;private street: number/*UInt*/;public number: NSNumber}"
+        raw = "{protected readonly people :Array<[number, Person]>;private static street: number/*UInt*/;public number: NSNumber}"
         body = try! ModelBody(typescript: raw)
         XCTAssert(body.swiftValue == exp)
     }
@@ -163,13 +163,13 @@ class TypeSwiftTests: XCTestCase {
     func testInterface() {
         var raw = """
         interface Bar {
-        \treadonly x: number
+        readonly x: number
         }
         """
         
         let exp = """
         protocol Bar {
-        \tvar x: NSNumber { get }
+        var x: NSNumber { get }
         }
         """
         var interface: Interface? = try! Interface(typescript: raw)
@@ -186,16 +186,16 @@ class TypeSwiftTests: XCTestCase {
     
     func testModel() {
         var raw = """
-        class Foo implements Interface {
-        \tpublic readonly x: number;
-        \tprivate y: number;
+        export class Foo implements Interface {
+        public readonly x: number;
+        private y: number;
         }
         """
         
         let exp = """
-        struct Foo: Interface {
-        \tpublic let x: NSNumber
-        \tprivate var y: NSNumber
+        public struct Foo: Interface {
+        public let x: NSNumber
+        private var y: NSNumber
         }
         """
         var model: Model? = try! Model(typescript: raw)
@@ -213,29 +213,29 @@ class TypeSwiftTests: XCTestCase {
     func testTypeScript() {
         let raw = """
         interface Bar {
-        \treadonly x: number
+        readonly x: number
         }
 
         class Foo {
-        \tpublic readonly x: number;
-        \tprivate y: number;
+        public readonly x: number;
+        private y: number;
         } class Bar {
-        \tprotected property : Array<[boolean, string]>
+        protected property : Array<[boolean, string]>
         }
         """
         
         let exp = """
         protocol Bar {
-        \tvar x: NSNumber { get }
+        var x: NSNumber { get }
         }
 
         struct Foo {
-        \tpublic let x: NSNumber
-        \tprivate var y: NSNumber
+        public let x: NSNumber
+        private var y: NSNumber
         }
 
         struct Bar {
-        \tinternal var property: [(Bool, String)]
+        internal var property: [(Bool, String)]
         }
         """
 

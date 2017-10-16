@@ -7,48 +7,6 @@
 
 import Foundation
 
-enum Permission: RawRepresentable, SwiftStringConvertible {
-    case readonly
-    case readAndWrite
-    
-    var rawValue: String {
-        switch self {
-        case .readonly:
-            return "readonly"
-        case .readAndWrite:
-            return ""
-        }
-    }
-
-    var swiftValue: String {
-        switch self {
-        case .readAndWrite:
-            return "get set"
-        case .readonly:
-            return "get"
-        }
-    }
-
-    var letOrVar: String {
-        switch self {
-        case .readAndWrite:
-            return "var"
-        case .readonly:
-            return "let"
-        }
-    }
-
-    init?(rawValue: String) {
-        if rawValue.isEmpty {
-            self = .readAndWrite
-        } else if rawValue == "readonly" {
-            self = .readonly
-        } else {
-            return nil
-        }
-    }
-}
-
 enum PropertyDefinition: TypeScriptInitializable, SwiftStringConvertible {
     case optional(String, Type)
     case definite(String, Type)
