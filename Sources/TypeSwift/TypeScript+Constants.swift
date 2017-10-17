@@ -10,6 +10,8 @@ import Foundation
 extension TypeScript {
     enum Constants {
         static let readonly = "readonly"
+
+        static let any = "any"
         static let number = "number"
         static let void = "void"
         static let boolean = "boolean"

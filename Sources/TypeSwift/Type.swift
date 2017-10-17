@@ -8,6 +8,7 @@
 import Foundation
 
 public indirect enum Type: TypeScriptInitializable, SwiftStringConvertible {
+    case any
     case string
     case boolean
     case number
@@ -26,6 +27,8 @@ public indirect enum Type: TypeScriptInitializable, SwiftStringConvertible {
             self = .void
         } else if typescript == TypeScript.Constants.number {
             self = .number
+        } else if typescript == TypeScript.Constants.any {
+            self = .any
         } else if typescript.hasPrefix(TypeScript.Constants.number) {
             guard typescript.count > 8 else {
                 throw TypeScriptError.invalidDeclaration(typescript)
@@ -96,6 +99,8 @@ public indirect enum Type: TypeScriptInitializable, SwiftStringConvertible {
     
     public var swiftValue: String {
         switch self {
+        case .any:
+            return "Any"
         case .boolean:
             return "Bool"
         case .string:
