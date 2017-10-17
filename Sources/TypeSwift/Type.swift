@@ -7,7 +7,7 @@
 
 import Foundation
 
-indirect enum Type: TypeScriptInitializable, SwiftStringConvertible {
+public indirect enum Type: TypeScriptInitializable, SwiftStringConvertible {
     case string
     case boolean
     case number
@@ -17,7 +17,7 @@ indirect enum Type: TypeScriptInitializable, SwiftStringConvertible {
     case array(Type)
     case tuple(Type, Type)
 
-    init(typescript: String) throws {
+    public init(typescript: String) throws {
         if typescript == TypeScript.Constants.string {
             self = .string
         } else if typescript == TypeScript.Constants.boolean {
@@ -94,7 +94,7 @@ indirect enum Type: TypeScriptInitializable, SwiftStringConvertible {
         }
     }
     
-    var swiftValue: String {
+    public var swiftValue: String {
         switch self {
         case .boolean:
             return "Bool"

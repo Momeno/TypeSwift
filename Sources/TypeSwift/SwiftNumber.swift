@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum SwiftNumber: String {
+public enum SwiftNumber: String {
     case float = "Float"
     case int = "Int"
     case uint = "UInt"

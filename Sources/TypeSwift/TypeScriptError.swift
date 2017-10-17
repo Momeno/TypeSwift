@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum TypeScriptError: Swift.Error {
+public enum TypeScriptError: Swift.Error {
     case cannotDeclareNamespaceWithoutBody
     case cannotDeclareModuleWithoutBody
     case cannotDeclareInterfaceWithoutBody

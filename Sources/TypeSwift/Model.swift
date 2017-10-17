@@ -7,14 +7,14 @@
 
 import Foundation
 
-struct Model: TypeScriptInitializable, SwiftStringConvertible {
+public struct Model: TypeScriptInitializable, SwiftStringConvertible {
     let modelDec: ModelDeclaration
     let name: String
     let extends: String?
     let implements: String?
     let body: ModelBody
 
-    var swiftValue: String {
+    public var swiftValue: String {
 
         var extends = ""
         switch (self.extends, self.implements) {
@@ -31,7 +31,7 @@ struct Model: TypeScriptInitializable, SwiftStringConvertible {
         return "\(modelDec.swiftValue) \(name)\(extends) \(body.swiftValue)"
     }
 
-    init(typescript: String) throws {
+    public init(typescript: String) throws {
         let working = typescript
             .trimLeadingCharacters(in: .whitespacesAndNewlines)
             .trimTrailingCharacters(in: .whitespacesAndNewlines)

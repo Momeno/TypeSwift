@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum TypeScript: TypeScriptInitializable, SwiftStringConvertible {
+public enum TypeScript: TypeScriptInitializable, SwiftStringConvertible {
 
     //case conformingModel(AccessLevel?, ModelDeclaration, String, String/*protocol conformation*/, ModelBody)
     case empty
@@ -19,7 +19,7 @@ enum TypeScript: TypeScriptInitializable, SwiftStringConvertible {
     indirect case namespace(String, TypeScript)
     indirect case composed(TypeScript, TypeScript)
     
-    var swiftValue: String {
+    public var swiftValue: String {
         switch self {
         case .empty:
             return ""
@@ -42,7 +42,7 @@ enum TypeScript: TypeScriptInitializable, SwiftStringConvertible {
         }
     }
     
-    init(typescript: String) throws {
+    public init(typescript: String) throws {
         let working = typescript
             .trimLeadingCharacters(in: .whitespacesAndNewlines)
             .trimTrailingCharacters(in: .whitespacesAndNewlines)

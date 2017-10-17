@@ -7,11 +7,11 @@
 
 import Foundation
 
-enum InterfaceDeclaration: String, SwiftStringConvertible {
+public enum InterfaceDeclaration: String, SwiftStringConvertible {
     case publicInterface = "export interface"
     case interface = "interface"
     
-    var swiftValue: String {
+    public var swiftValue: String {
         switch self {
         case .interface:
             return "protocol"

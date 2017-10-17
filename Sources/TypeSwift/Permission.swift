@@ -7,11 +7,11 @@
 
 import Foundation
 
-enum Permission: SwiftStringConvertible {
+public enum Permission: SwiftStringConvertible {
     case readonly
     case readAndWrite
 
-    var swiftValue: String {
+    public var swiftValue: String {
         switch self {
         case .readAndWrite:
             return "get set"
@@ -20,7 +20,7 @@ enum Permission: SwiftStringConvertible {
         }
     }
 
-    var letOrVar: String {
+    public var letOrVar: String {
         switch self {
         case .readAndWrite:
             return "var"
@@ -29,7 +29,7 @@ enum Permission: SwiftStringConvertible {
         }
     }
 
-    init?(rawValue: String) {
+    public init?(rawValue: String) {
         if rawValue.isEmpty {
             self = .readAndWrite
         } else if rawValue == "readonly" {

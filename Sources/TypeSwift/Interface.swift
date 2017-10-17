@@ -7,17 +7,17 @@
 
 import Foundation
 
-struct Interface: TypeScriptInitializable, SwiftStringConvertible {
+public struct Interface: TypeScriptInitializable, SwiftStringConvertible {
 
     let interfaceDec: InterfaceDeclaration
     let name: String
     let body: InterfaceBody
 
-    var swiftValue: String {
+    public var swiftValue: String {
         return "\(interfaceDec.swiftValue) \(name) \(body.swiftValue)"
     }
 
-    init(typescript: String) throws {
+    public init(typescript: String) throws {
         let working = typescript
             .trimLeadingCharacters(in: .whitespacesAndNewlines)
             .trimTrailingCharacters(in: .whitespacesAndNewlines)

@@ -7,11 +7,11 @@
 
 import Foundation
 
-struct ModelBody: TypeScriptInitializable, SwiftStringConvertible {
+public struct ModelBody: TypeScriptInitializable, SwiftStringConvertible {
     
     let properties: [(access: PropertyAccessLevel, scope: PropertyScope, perm: Permission, def: PropertyDefinition)]
     
-    var swiftValue: String {
+    public var swiftValue: String {
         let joined = properties.map {
                 let access = $0.0
                 let scope = $0.1
@@ -29,7 +29,7 @@ struct ModelBody: TypeScriptInitializable, SwiftStringConvertible {
         return "{\n\(joined)\n}"
     }
     
-    init(typescript: String) throws {
+    public init(typescript: String) throws {
         guard let index = typescript.index(of: "{") else {
             throw TypeScriptError.cannotDeclareModelWithoutBody
         }

@@ -7,12 +7,12 @@
 
 import Foundation
 
-struct FunctionDeclaration: SwiftStringConvertible, TypeScriptInitializable {
+public struct FunctionDeclaration: SwiftStringConvertible, TypeScriptInitializable {
 
     let typescript: String
     let functionParams: [PropertyDefinition]
 
-    var swiftValue: String {
+    public var swiftValue: String {
         var str = self.typescript
 
         let function = "function"
@@ -54,7 +54,7 @@ struct FunctionDeclaration: SwiftStringConvertible, TypeScriptInitializable {
         return str
     }
 
-    init(typescript: String) throws {
+    public init(typescript: String) throws {
         let regex = "\\(.*\\)"
         guard let range = typescript.range(of: regex,
                                             options: .regularExpression,

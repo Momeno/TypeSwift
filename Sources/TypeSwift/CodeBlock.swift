@@ -7,15 +7,15 @@
 
 import Foundation
 
-struct CodeBlock: TypeScriptInitializable, SwiftStringConvertible {
+public struct CodeBlock: TypeScriptInitializable, SwiftStringConvertible {
 
-    let swiftValue: String
+    public let swiftValue: String
 
     private init(swiftValue: String) {
         self.swiftValue = swiftValue
     }
 
-    init(typescript: String) throws {
+    public init(typescript: String) throws {
         var str = typescript
         let regexForVariable = "\\$\\{[^\\}]*\\}"
 

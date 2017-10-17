@@ -7,11 +7,11 @@
 
 import Foundation
 
-enum VariableType: String, SwiftStringConvertible {
+public enum VariableType: String, SwiftStringConvertible {
     case `let`
     case const
     
-    var swiftValue: String {
+    public var swiftValue: String {
         switch self {
         case .let:
             return "var"

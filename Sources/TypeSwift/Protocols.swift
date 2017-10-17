@@ -7,10 +7,10 @@
 
 import Foundation
 
-protocol SwiftStringConvertible {
+public protocol SwiftStringConvertible {
     var swiftValue: String { get }
 }
 
-protocol TypeScriptInitializable {
+public protocol TypeScriptInitializable {
     init(typescript: String) throws
 }

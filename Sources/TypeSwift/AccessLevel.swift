@@ -7,12 +7,12 @@
 
 import Foundation
 
-enum PropertyAccessLevel: String, SwiftStringConvertible {
+public enum PropertyAccessLevel: String, SwiftStringConvertible {
     case `public`
     case `private`
     case protected
     
-    var swiftValue: String {
+    public var swiftValue: String {
         switch self {
         case .public:
             return "public"
@@ -24,11 +24,11 @@ enum PropertyAccessLevel: String, SwiftStringConvertible {
     }
 }
 
-enum PropertyScope: String, SwiftStringConvertible {
+public enum PropertyScope: String, SwiftStringConvertible {
     case `static`
     case none
 
-    var swiftValue: String {
+    public var swiftValue: String {
         switch self {
         case .none:
             return ""

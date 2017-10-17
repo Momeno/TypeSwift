@@ -7,18 +7,18 @@
 
 import Foundation
 
-struct InterfaceBody: TypeScriptInitializable, SwiftStringConvertible {
+public struct InterfaceBody: TypeScriptInitializable, SwiftStringConvertible {
 
     let properties: [(perm: Permission, def: PropertyDefinition)]
 
-    var swiftValue: String {
+    public var swiftValue: String {
         return "{\n" + self.properties.map { perm, def in
             return "var \(def.swiftValue) { \(perm.swiftValue) }"
         }
         .joined(separator: "\n") + "\n}"
     }
 
-    init(typescript: String) throws {
+    public init(typescript: String) throws {
         guard let index = typescript.index(of: "{") else {
             throw TypeScriptError.cannotDeclareInterfaceWithoutBody
         }

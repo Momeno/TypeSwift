@@ -7,12 +7,12 @@
 
 import Foundation
 
-enum PropertyDefinition: TypeScriptInitializable, SwiftStringConvertible {
+public enum PropertyDefinition: TypeScriptInitializable, SwiftStringConvertible {
     case optional(String, Type)
     case definite(String, Type)
 //    case indexSignature(String, Type, Type)
     
-    var swiftValue: String {
+    public var swiftValue: String {
         switch self {
         case .definite(let name, let type):
             return "\(name): \(type.swiftValue)"
@@ -21,7 +21,7 @@ enum PropertyDefinition: TypeScriptInitializable, SwiftStringConvertible {
         }
     }
 
-    init(typescript: String) throws {
+    public init(typescript: String) throws {
         guard let first = typescript.first else {
             throw TypeScriptError.invalidDeclaration(typescript)
         }

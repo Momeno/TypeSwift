@@ -7,17 +7,17 @@
 
 import Foundation
 
-struct Function: TypeScriptInitializable, SwiftStringConvertible {
+public struct Function: TypeScriptInitializable, SwiftStringConvertible {
     
     let declaration: FunctionDeclaration
     let body: CodeBlock
 
-    var swiftValue: String {
+    public var swiftValue: String {
         return "\(declaration.swiftValue) \(body.swiftValue)"
             .replacingOccurrences(of: "  ", with: " ")
     }
 
-    init(typescript: String) throws {
+    public init(typescript: String) throws {
         guard let body = typescript.rangeOfBody() else {
             throw TypeScriptError.invalidDeclaration(typescript)
         }
