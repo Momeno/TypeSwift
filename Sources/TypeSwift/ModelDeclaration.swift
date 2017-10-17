@@ -10,6 +10,7 @@ import Foundation
 enum ModelDeclaration: String, SwiftStringConvertible {
     case `class`
     case publicClass = "export class"
+    case defaultExportClass = "default export class"
     
     var swiftValue: String {
         switch self {
@@ -17,6 +18,18 @@ enum ModelDeclaration: String, SwiftStringConvertible {
             return "struct"
         case .publicClass:
             return "public struct"
+        case .defaultExportClass:
+            return "public struct"
         }
+    }
+
+    static var allCases: [ModelDeclaration] {
+        return [ .`class`, .publicClass, .defaultExportClass ]
+    }
+
+    static var maxLength: Int {
+        return allCases.reduce(0, { (result, dec) -> Int in
+            return dec.rawValue.count > result ? dec.rawValue.count : result
+        })
     }
 }

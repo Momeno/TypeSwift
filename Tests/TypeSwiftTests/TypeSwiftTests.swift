@@ -254,10 +254,10 @@ class TypeSwiftTests: XCTestCase {
         return \"something/${userID}\"
         }
         }
-        class Foo {
+        default export class Foo {
         public readonly x: number;
         private y: number;
-        } class Bar {
+        } export class Bar {
         protected property : Array<[boolean, string]>
         }
         """
@@ -275,11 +275,11 @@ class TypeSwiftTests: XCTestCase {
         return \"something/\\(userID)\"
         }
         }
-        struct Foo {
+        public struct Foo {
         public let x: NSNumber
         private var y: NSNumber
         }
-        struct Bar {
+        public struct Bar {
         internal var property: [(Bool, String)]
         }
         """
@@ -324,6 +324,10 @@ class TypeSwiftTests: XCTestCase {
         test = "\t  export class Some {"
         XCTAssertNil(test.interfaceDeclarationPrefix())
         XCTAssert(test.modelDeclarationPrefix()?.rawValue == "export class")
+
+        test = "\t  default export class Some {"
+        XCTAssertNil(test.interfaceDeclarationPrefix())
+        XCTAssert(test.modelDeclarationPrefix()?.rawValue == "default export class")
         
         test = "class Foo"
         XCTAssertNil(test.interfaceDeclarationPrefix())

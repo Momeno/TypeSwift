@@ -148,31 +148,41 @@ extension String {
     
     func modelDeclarationPrefix() -> ModelDeclaration? {
         let working = self.trimLeadingWhitespace()
-        guard let index = working.index(of: " ") else {
-            return nil
+
+        var index = working.endIndex
+        if working.count >= ModelDeclaration.maxLength {
+            index = working.index(working.startIndex, offsetBy: ModelDeclaration.maxLength)
         }
-        
-        let start = working.startIndex
-        var end = index
-        if working.hasPrefix(TypeScript.Constants.export) {
-            let newWorking = String(working.suffix(from: index))
-                .trimLeadingWhitespace()
 
-            guard let secondEndIndex = newWorking.index(of: " ") else {
-                return nil
+        var str = ""
+        for char in String(working[working.startIndex..<index]) {
+            str += String(char)
+            if let modelDec = ModelDeclaration(rawValue: str) {
+                return modelDec
             }
-
-            let nextWord = String(newWorking[newWorking.startIndex..<secondEndIndex])
-            guard let nextWordStart = working.range(of: nextWord)?.lowerBound else {
-                return nil
-            }
-            
-            let nextSpace = working.index(nextWordStart, offsetBy: nextWord.count)
-
-            end = nextSpace
         }
-        
-        return ModelDeclaration(rawValue: String(working[start..<end]))
+        return nil
+//        let start = working.startIndex
+//        var end = index
+//        if working.hasPrefix(TypeScript.Constants.export) {
+//            let newWorking = String(working.suffix(from: index))
+//                .trimLeadingWhitespace()
+//
+//            guard let secondEndIndex = newWorking.index(of: " ") else {
+//                return nil
+//            }
+//
+//            let nextWord = String(newWorking[newWorking.startIndex..<secondEndIndex])
+//            guard let nextWordStart = working.range(of: nextWord)?.lowerBound else {
+//                return nil
+//            }
+//
+//            let nextSpace = working.index(nextWordStart, offsetBy: nextWord.count)
+//
+//            end = nextSpace
+//        }
+//
+//        return ModelDeclaration(rawValue: String(working[start..<end]))
     }
     
     func interfaceDeclarationPrefix() -> InterfaceDeclaration? {
