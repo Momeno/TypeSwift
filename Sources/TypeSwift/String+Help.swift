@@ -30,9 +30,10 @@ extension String {
     func trimComments() -> String {
         let commentRegex = "(\\/\\*([^*]|[\\r\\n]|(\\*+([^*/]|[\\r\\n])))*\\*+\\/)|(\\/\\/.*)"
         var str = self
+        var searchRange = str.startIndex..<str.endIndex
         while let range = str.range(of: commentRegex,
                                     options: .regularExpression,
-                                    range: nil,
+                                    range: searchRange,
                                     locale: nil) {
             let prefix = String(str.prefix(upTo: range.lowerBound))
 
@@ -44,12 +45,10 @@ extension String {
                 str = str.replacingCharacters(in: range, with: "")
                     .trimLeadingWhitespace()
                     .trimTrailingWhitespace()
+                searchRange = searchRange.lowerBound..<str.endIndex
             } else {
-                str = String(str.suffix(from: range.upperBound))
-                    .trimLeadingWhitespace()
-                    .trimTrailingWhitespace()
+                searchRange = range.upperBound..<str.endIndex
             }
-
         }
 
         return str

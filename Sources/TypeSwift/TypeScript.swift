@@ -44,8 +44,8 @@ public enum TypeScript: TypeScriptInitializable, SwiftStringConvertible {
     
     public init(typescript: String) throws {
         let working = typescript
-            .trimLeadingCharacters(in: .whitespacesAndNewlines)
-            .trimTrailingCharacters(in: .whitespacesAndNewlines)
+            .trimLeadingWhitespace()
+            .trimTrailingWhitespace()
             .trimComments()
 
         var typescript1: TypeScript!
