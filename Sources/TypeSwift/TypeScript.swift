@@ -12,6 +12,7 @@ enum TypeScript: TypeScriptInitializable, SwiftStringConvertible {
     //case conformingModel(AccessLevel?, ModelDeclaration, String, String/*protocol conformation*/, ModelBody)
     case empty
     case `typealias`(String, Type)
+    case function(Function)
     case model(Model)
     case interface(Interface)
     indirect case module(String, TypeScript)
@@ -24,6 +25,8 @@ enum TypeScript: TypeScriptInitializable, SwiftStringConvertible {
             return ""
         case .`typealias`(let name, let type):
             return "typealias \(name) = \(type.swiftValue)"
+        case .function(let function):
+            return function.swiftValue
         case .interface(let interface):
             return interface.swiftValue
         case .model(let model):
@@ -46,8 +49,14 @@ enum TypeScript: TypeScriptInitializable, SwiftStringConvertible {
 
         var typescript1: TypeScript!
         var elementRange: Range<String.Index>!
-
-        if working.hasPrefix(.typeAlias) {
+        if working.hasPrefix(.functionDeclaration) {
+            guard let start = working.rangeOfFunction()?.lowerBound,
+                let end = working.rangeOfBody()?.upperBound else {
+                throw TypeScriptError.invalidFunctionDeclaration
+            }
+            elementRange = start..<end
+            typescript1 = .function(try Function(typescript: String(working[elementRange])))
+        } else if working.hasPrefix(.typeAlias) {
 
             let typealiasKeyword = working.typealiasDeclarationPrefix()!
 
@@ -123,7 +132,7 @@ enum TypeScript: TypeScriptInitializable, SwiftStringConvertible {
                 .trimLeadingCharacters(in: .whitespacesAndNewlines)
         }
 
-        if (try? TypeScript(typescript: nextTypeScript) ?? nil) != nil {
+        if ((try? TypeScript(typescript: nextTypeScript)) ?? nil) != nil {
             let typescript2 = try TypeScript(typescript: nextTypeScript)
             self = .composed(typescript1, typescript2)
         } else {

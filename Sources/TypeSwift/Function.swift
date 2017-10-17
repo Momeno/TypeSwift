@@ -7,56 +7,21 @@
 
 import Foundation
 
-struct FunctionDeclaration: SwiftStringConvertible, TypeScriptInitializable {
-
-    let typescript: String
-    let functionParams: [PropertyDefinition]
-    var swiftValue: String {
-        var str = self.typescript
-
-        var function = "function"
-        
-        if let range = self.typescript.range(of: function) {
-            str = str.replacingCharacters(in: range, with: "func")
-        }
-        
-        var colon = ":"
-        if let range = self.typescript.range(of: colon) {
-            str = str.replacingCharacters(in: range, with: "->")
-        }
-        
-        let regex = "\\(.*\\)"
-        let paramString = functionParams.map {
-            $0.swiftValue
-        }
-        .joined(separator: ", ")
-        
-        if let range = self.typescript.range(of: regex,
-                                             options: .regularExpression,
-                                             range: nil,
-                                             locale: nil) {
-            str = str.replacingCharacters(in: range, with: paramString)
-        }
-
-        return str
-    }
-    
-    init(typescript: String) throws {
-        self.typescript = typescript
-    }
-}
-
 struct Function: TypeScriptInitializable, SwiftStringConvertible {
     
     let declaration: FunctionDeclaration
-    let body: FunctionBody
+    let body: CodeBlock
 
     var swiftValue: String {
-        return decla
+        return "\(declaration.swiftValue) \(body.swiftValue)"
+            .replacingOccurrences(of: "  ", with: " ")
     }
 
     init(typescript: String) throws {
-        let body =
-        self.swiftValue = type
+        guard let body = typescript.rangeOfBody() else {
+            throw TypeScriptError.invalidDeclaration(typescript)
+        }
+        self.declaration = try FunctionDeclaration(typescript: String(typescript[typescript.startIndex..<body.lowerBound]))
+        self.body = try CodeBlock(typescript: String(typescript[body]))
     }
 }

@@ -209,6 +209,36 @@ class TypeSwiftTests: XCTestCase {
         model = try? Model(typescript: raw)
         XCTAssertNil(model)
     }
+
+    func testCodeBlock() {
+        let body = try! CodeBlock(typescript: """
+        {
+        return "/path/to/${userID}/${dialogID}"
+        }
+        """)
+
+        let exp = """
+        {
+        return \"/path/to/\\(userID)/\\(dialogID)\"
+        }
+        """
+
+        XCTAssert(body.swiftValue == exp)
+
+        // currently this model init method doesn't fail
+
+    }
+
+    func testFunction() {
+        let function = try! Function(typescript: """
+        function getReference(dialogID: string, userID: number/*UInt*/) : string {
+        return "/path/to/${userID}/${dialogID}"
+        }
+        """)
+
+        let exp = "func getReference(dialogID: String, userID: UInt) -> String {\nreturn \"/path/to/\\(userID)/\\(dialogID)\"\n}"
+        XCTAssert(function.swiftValue == exp)
+    }
     
     func testTypeScript() {
         let raw = """
@@ -219,6 +249,9 @@ class TypeSwiftTests: XCTestCase {
         interface Bar {
         readonly x: number
         }
+        }
+        function some(userID: string) : string {
+        return \"something/${userID}\"
         }
         }
         class Foo {
@@ -237,6 +270,9 @@ class TypeSwiftTests: XCTestCase {
         protocol Bar {
         var x: NSNumber { get }
         }
+        }
+        func some(userID: String) -> String {
+        return \"something/\\(userID)\"
         }
         }
         struct Foo {
@@ -299,9 +335,25 @@ class TypeSwiftTests: XCTestCase {
     }
     
     func testTypeScriptStringFormatRegex() {
-        var str = "\" as s dad ${some} \\\" sjxkæajdk a\""
+        var str = """
+        {
+        return \"/path/to/${userID}/${dialogID}\"
+        }
+        """
+        XCTAssert(String(str[str.rangeOfTypeScriptFormatString()!]) == "\"/path/to/${userID}/${dialogID}\"")
+
+
+        str = "\" as s dad ${some} \\\" sjxkæajdk a\""
         XCTAssert(str.isTypeScriptFormatString)
 
+        str = """
+        \" as s dad ${some} \\\" sjxkæajdk a\\\"\"
+        """
+        XCTAssert(str.isTypeScriptFormatString)
+
+        str = """
+        \"/path/to/${userID}/${dialogID}\"
+        """
         str = "regular string \\\"  \""
 
         XCTAssertFalse(str.isTypeScriptFormatString)
@@ -331,10 +383,14 @@ class TypeSwiftTests: XCTestCase {
         ("testAccessLevel", testAccessLevel),
         ("testModelBody", testModelBody),
         ("testModel", testModel),
+        ("testFunction", testFunction),
+        ("testCodeBlock", testCodeBlock),
         ("testInterface", testInterface),
         ("testTypeScript", testTypeScript),
         ("testPropertyDefinition", testPropertyDefinition),
         ("testStringTrimHelpers", testStringTrimHelpers),
-        ("testStringPrefixHelpers", testStringPrefixHelpers)
+        ("testStringPrefixHelpers", testStringPrefixHelpers),
+        ("testTypeScriptStringFormatRegex", testTypeScriptStringFormatRegex),
+        ("testStringBodyHelpers", testStringBodyHelpers)
     ]
 }

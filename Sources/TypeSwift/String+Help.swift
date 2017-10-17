@@ -15,16 +15,14 @@ enum PrefixType {
 
     case module
     case namespace
+
+    case functionDeclaration
 }
 
 extension String {
     
     var isTypeScriptFormatString: Bool {
-        let regex = "\"((\\$)|(\\{)|(\\\\t)|(\\\\n)|(\\\\\\\")|(\\$\\{.*\\})|\\w|\\s)*\""
-        return self.range(of: regex,
-                   options: .regularExpression,
-                   range: nil,
-                   locale: nil) == self.startIndex..<self.endIndex
+        return self.rangeOfTypeScriptFormatString() == self.startIndex..<self.endIndex
     }
     
     func trimLeadingCharacters(in set: CharacterSet) -> String {
@@ -101,11 +99,21 @@ extension String {
             return namespaceDeclarationPrefix() != nil
         case .module:
             return moduleDeclarationPrefix() != nil
+        case .functionDeclaration:
+            return self.rangeOfFunction()?.lowerBound == self.startIndex
         }
+    }
+
+    func rangeOfTypeScriptFormatString() -> Range<String.Index>? {
+        let regex = "\\\".*\\\""
+        return self.range(of: regex,
+                          options: .regularExpression,
+                          range: nil,
+                          locale: nil)
     }
     
     func rangeOfFunction() -> Range<String.Index>? {
-        return self.range(of: "(function\\s)?\\w+\\(\\)\\s*\\:\\s*\\w+",
+        return self.range(of: "(function\\s)?\\s*\\w*\\(.*\\)\\s*\\:\\s*\\w+",
                           options: .regularExpression,
                           range: nil,
                           locale: nil)
