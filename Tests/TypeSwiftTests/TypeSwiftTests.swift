@@ -254,7 +254,7 @@ class TypeSwiftTests: XCTestCase {
         return \"something/${userID}\"
         }
         }
-        default export class Foo {
+        export default class Foo {
         public readonly x: number;
         private y: number;
         } export class Bar {
@@ -285,6 +285,37 @@ class TypeSwiftTests: XCTestCase {
         """
 
         XCTAssert((try! TypeScript(typescript: raw)).swiftValue == exp)
+
+
+        let rawString = """
+        import DatabaseReference from './Refrences'
+
+        export default class PublicProfile {
+          timestamp: any;
+          display_name?: string;
+          user_name: string;
+          id: string;
+          public static reference = DatabaseReference.publicProlfile
+
+          constructor(config: PublicProfileConfig) {
+            this.timestamp = config.timestamp;
+            this.id = config.id;
+            this.user_name = config.user_name;
+            if (config.display_name) {
+              this.display_name = config.display_name;
+            }
+          }
+        }
+
+        interface PublicProfileConfig {
+          timestamp: any,
+          id: string,
+          user_name: string,
+          display_name?: string,
+        }
+        """
+        let ts = try! TypeScript(typescript: rawString)
+        XCTAssert(ts.swiftValue == "")
     }
 
     func testStringTrimHelpers() {
@@ -325,9 +356,9 @@ class TypeSwiftTests: XCTestCase {
         XCTAssertNil(test.interfaceDeclarationPrefix())
         XCTAssert(test.modelDeclarationPrefix()?.rawValue == "export class")
 
-        test = "\t  default export class Some {"
+        test = "\t  export default class Some {"
         XCTAssertNil(test.interfaceDeclarationPrefix())
-        XCTAssert(test.modelDeclarationPrefix()?.rawValue == "default export class")
+        XCTAssert(test.modelDeclarationPrefix()?.rawValue == "export default class")
         
         test = "class Foo"
         XCTAssertNil(test.interfaceDeclarationPrefix())

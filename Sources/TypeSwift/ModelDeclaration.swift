@@ -10,7 +10,7 @@ import Foundation
 public enum ModelDeclaration: String, SwiftStringConvertible {
     case `class`
     case publicClass = "export class"
-    case defaultExportClass = "default export class"
+    case defaultExportClass = "export default class"
     
     public var swiftValue: String {
         switch self {

@@ -25,5 +25,7 @@ extension TypeScript {
         static let type = "type"
         
         static let function = "function"
+
+        static let `import` = "import"
     }
 }

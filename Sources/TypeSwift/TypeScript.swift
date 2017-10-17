@@ -49,7 +49,11 @@ public enum TypeScript: TypeScriptInitializable, SwiftStringConvertible {
 
         var typescript1: TypeScript!
         var elementRange: Range<String.Index>!
-        if working.hasPrefix(.functionDeclaration) {
+        if working.hasPrefix(.`import`){
+            typescript1 = .empty
+            let upper = working.rangeOfCharacter(from: CharacterSet(charactersIn: ";\n"))?.upperBound ?? working.endIndex
+            elementRange = working.startIndex..<upper
+        } else if working.hasPrefix(.functionDeclaration) {
             guard let start = working.rangeOfFunction()?.lowerBound,
                 let end = working.rangeOfBody()?.upperBound else {
                 throw TypeScriptError.invalidFunctionDeclaration
@@ -135,8 +139,15 @@ public enum TypeScript: TypeScriptInitializable, SwiftStringConvertible {
         if ((try? TypeScript(typescript: nextTypeScript)) ?? nil) != nil {
             let typescript2 = try TypeScript(typescript: nextTypeScript)
             self = .composed(typescript1, typescript2)
-        } else {
+        } else if typescript1 != nil {
             self = typescript1
+        } else {
+            if let index = working.index(of: "\n") ?? working.index(of: ";") {
+                let working = String(working[working.startIndex..<index])
+                throw TypeScriptError.unsupportedTypeScript(working)
+            } else {
+                throw TypeScriptError.unsupportedTypeScript(working)
+            }
         }
     }
 }

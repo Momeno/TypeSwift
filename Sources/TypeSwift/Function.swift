@@ -7,21 +7,37 @@
 
 import Foundation
 
-public struct Function: TypeScriptInitializable, SwiftStringConvertible {
-    
-    let declaration: FunctionDeclaration
-    let body: CodeBlock
+public enum Function: TypeScriptInitializable, SwiftStringConvertible {
+
+    case empty
+    case function(FunctionDeclaration, CodeBlock)
 
     public var swiftValue: String {
-        return "\(declaration.swiftValue) \(body.swiftValue)"
-            .replacingOccurrences(of: "  ", with: " ")
+        switch self {
+        case .empty:
+            return ""
+        case .function(let declaration, let body):
+            return "\(declaration.swiftValue) \(body.swiftValue)"
+                .replacingOccurrences(of: "  ", with: " ")
+        }
     }
 
     public init(typescript: String) throws {
         guard let body = typescript.rangeOfBody() else {
             throw TypeScriptError.invalidDeclaration(typescript)
         }
-        self.declaration = try FunctionDeclaration(typescript: String(typescript[typescript.startIndex..<body.lowerBound]))
-        self.body = try CodeBlock(typescript: String(typescript[body]))
+
+        let constructorRegex = "constructor\\s*\\("
+        let isConstructor = typescript.range(of: constructorRegex,
+                                             options: .regularExpression,
+                                             range: nil,
+                                             locale: nil) != nil
+        if isConstructor {
+            self = .empty
+        } else {
+            self = .function(try FunctionDeclaration(typescript: String(typescript[typescript.startIndex..<body.lowerBound])),
+                             try CodeBlock(typescript: String(typescript[body])))
+        }
+
     }
 }

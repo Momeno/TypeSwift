@@ -17,6 +17,8 @@ enum PrefixType {
     case namespace
 
     case functionDeclaration
+
+    case `import`
 }
 
 extension String {
@@ -89,6 +91,8 @@ extension String {
     
     func hasPrefix(_ prefixType: PrefixType) -> Bool {
         switch prefixType {
+        case .`import`:
+            return importPrefix() != nil
         case .typeAlias:
             return typealiasDeclarationPrefix() != nil
         case .interface:
@@ -144,6 +148,14 @@ extension String {
         }
         guard let low = lower, let up = upper else { return nil }
         return low..<self.index(after:up)
+    }
+
+    func importPrefix() -> String? {
+        guard let word = self.getWord(atIndex: 0, seperation: .whitespaces),
+            word == TypeScript.Constants.`import` else {
+                return nil
+        }
+        return word
     }
     
     func modelDeclarationPrefix() -> ModelDeclaration? {
