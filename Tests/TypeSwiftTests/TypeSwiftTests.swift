@@ -368,6 +368,22 @@ class TypeSwiftTests: XCTestCase {
         XCTAssertNil(test.interfaceDeclarationPrefix())
         XCTAssertNil(test.modelDeclarationPrefix())
     }
+
+    func testStringTrimComments() {
+        let str = """
+        æadfjs kdfa fdlæakfkjdaldkf/* aædflkja kækasd */
+        fd sj lfdasæ// lfdkaæ jkldf/*
+        Some
+        """
+
+        let exp = """
+        æadfjs kdfa fdlæakfkjdaldkf
+        fd sj lfdasæ
+        Some
+        """
+
+        XCTAssert(str.trimComments() == exp)
+    }
     
     func testTypeScriptStringFormatRegex() {
         var str = """

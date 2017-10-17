@@ -26,7 +26,20 @@ extension String {
     var isTypeScriptFormatString: Bool {
         return self.rangeOfTypeScriptFormatString() == self.startIndex..<self.endIndex
     }
-    
+
+    func trimComments() -> String {
+        let commentRegex = "(\\/\\*([^*]|[\\r\\n]|(\\*+([^*/]|[\\r\\n])))*\\*+\\/)|(\\/\\/.*)"
+        var str = self
+        while let range = str.range(of: commentRegex,
+                                    options: .regularExpression,
+                                    range: nil,
+                                    locale: nil) {
+            str = str.replacingCharacters(in: range, with: "")
+        }
+
+        return str
+    }
+
     func trimLeadingCharacters(in set: CharacterSet) -> String {
         guard self.isEmpty == false,
             let scalar = self[startIndex].unicodeScalars.first else { return self }
