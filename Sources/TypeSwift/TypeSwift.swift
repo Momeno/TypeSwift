@@ -6,7 +6,7 @@ public enum Language  {
 
 public struct TypeSwift {
     
-    static let sharedInstance = TypeSwift()
+    public static let sharedInstance = TypeSwift()
     
     public func convert(file: URL, to language: Language, output url: URL) throws {
         let typeScript = try loadTypeScript(from: file)

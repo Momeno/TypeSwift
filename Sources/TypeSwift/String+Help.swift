@@ -162,27 +162,6 @@ extension String {
             }
         }
         return nil
-//        let start = working.startIndex
-//        var end = index
-//        if working.hasPrefix(TypeScript.Constants.export) {
-//            let newWorking = String(working.suffix(from: index))
-//                .trimLeadingWhitespace()
-//
-//            guard let secondEndIndex = newWorking.index(of: " ") else {
-//                return nil
-//            }
-//
-//            let nextWord = String(newWorking[newWorking.startIndex..<secondEndIndex])
-//            guard let nextWordStart = working.range(of: nextWord)?.lowerBound else {
-//                return nil
-//            }
-//
-//            let nextSpace = working.index(nextWordStart, offsetBy: nextWord.count)
-//
-//            end = nextSpace
-//        }
-//
-//        return ModelDeclaration(rawValue: String(working[start..<end]))
     }
     
     func interfaceDeclarationPrefix() -> InterfaceDeclaration? {
