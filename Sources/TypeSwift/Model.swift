@@ -54,7 +54,7 @@ struct Model: TypeScriptInitializable, SwiftStringConvertible {
         
         guard let name = String(suffix.suffix(from: indexOfSpace))
             .getWord(atIndex: 0, seperation: .whitespaces) else {
-                throw TypeScriptError.invalidDeclaration(String(typescript.prefix(upTo: bodyRange.upperBound)))
+            throw TypeScriptError.invalidDeclaration(String(typescript.prefix(upTo: bodyRange.upperBound)))
         }
 
         let brace = suffix.index(of: "{")!

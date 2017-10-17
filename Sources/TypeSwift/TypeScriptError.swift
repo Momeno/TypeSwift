@@ -13,6 +13,7 @@ enum TypeScriptError: Swift.Error {
     case cannotDeclareInterfaceWithoutBody
     case cannotDeclareModelWithoutBody
     case invalidTypealias
+    case invalidFunctionDeclaration
     case invalidDeclaration(String)
     case typeScriptEmpty
     case unsupportedTypeScript(String)

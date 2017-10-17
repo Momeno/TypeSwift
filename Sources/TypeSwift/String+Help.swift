@@ -19,6 +19,14 @@ enum PrefixType {
 
 extension String {
     
+    var isTypeScriptFormatString: Bool {
+        let regex = "\"((\\$)|(\\{)|(\\\\t)|(\\\\n)|(\\\\\\\")|(\\$\\{.*\\})|\\w|\\s)*\""
+        return self.range(of: regex,
+                   options: .regularExpression,
+                   range: nil,
+                   locale: nil) == self.startIndex..<self.endIndex
+    }
+    
     func trimLeadingCharacters(in set: CharacterSet) -> String {
         guard self.isEmpty == false,
             let scalar = self[startIndex].unicodeScalars.first else { return self }
@@ -96,6 +104,13 @@ extension String {
         }
     }
     
+    func rangeOfFunction() -> Range<String.Index>? {
+        return self.range(of: "(function\\s)?\\w+\\(\\)\\s*\\:\\s*\\w+",
+                          options: .regularExpression,
+                          range: nil,
+                          locale: nil)
+    }
+    
     func rangeOfBody() -> Range<String.Index>? {
         var lower: String.Index?
         var upper: String.Index?
@@ -157,7 +172,7 @@ extension String {
         guard let index = working.index(of: " ") else {
             return nil
         }
-        
+
         let start = working.startIndex
         var end = index
         if working.hasPrefix(TypeScript.Constants.export) {

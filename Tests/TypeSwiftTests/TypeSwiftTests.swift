@@ -298,6 +298,15 @@ class TypeSwiftTests: XCTestCase {
         XCTAssertNil(test.modelDeclarationPrefix())
     }
     
+    func testTypeScriptStringFormatRegex() {
+        var str = "\" as s dad ${some} \\\" sjxkæajdk a\""
+        XCTAssert(str.isTypeScriptFormatString)
+
+        str = "regular string \\\"  \""
+
+        XCTAssertFalse(str.isTypeScriptFormatString)
+    }
+    
     func testStringBodyHelpers() {
         var test = "{ { } }  }"
         var exp = "{ { } }"

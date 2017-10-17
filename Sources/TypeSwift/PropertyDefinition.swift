@@ -10,7 +10,7 @@ import Foundation
 enum PropertyDefinition: TypeScriptInitializable, SwiftStringConvertible {
     case optional(String, Type)
     case definite(String, Type)
-    case indexSignature(String, Type, Type)
+//    case indexSignature(String, Type, Type)
     
     var swiftValue: String {
         switch self {
@@ -18,8 +18,6 @@ enum PropertyDefinition: TypeScriptInitializable, SwiftStringConvertible {
             return "\(name): \(type.swiftValue)"
         case .optional(let name, let type):
             return "\(name): \(type.swiftValue)?"
-        case .indexSignature(_, _, _):
-            fatalError("Index Signatures are not supported")
         }
     }
 

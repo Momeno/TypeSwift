@@ -40,7 +40,21 @@ struct ModelBody: TypeScriptInitializable, SwiftStringConvertible {
             throw TypeScriptError.cannotDeclareModelWithoutBody
         }
         
-        let workingString = typescript[start..<end]
+        var workingString = String(typescript[start..<end])
+
+        var functions: [Function] = []
+        while let functionRange = workingString.rangeOfFunction() {
+            let start = functionRange.lowerBound
+            let suffix = String(workingString.suffix(from: start))
+            
+            guard let rangeOfBody = suffix.rangeOfBody() else {
+                throw TypeScriptError.invalidFunctionDeclaration
+            }
+            let totalFunctionRange = start...rangeOfBody.upperBound
+            functions.append(try Function(typescript: String(workingString[totalFunctionRange])))
+            workingString = workingString.replacingCharacters(in: totalFunctionRange, with: "")
+        }
+        
         let components = workingString.components(separatedBy: CharacterSet(charactersIn: "\n;"))
 
         var arr: [(PropertyAccessLevel, PropertyScope, Permission, PropertyDefinition)] = []
