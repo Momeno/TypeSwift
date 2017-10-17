@@ -34,7 +34,22 @@ extension String {
                                     options: .regularExpression,
                                     range: nil,
                                     locale: nil) {
-            str = str.replacingCharacters(in: range, with: "")
+            let prefix = String(str.prefix(upTo: range.lowerBound))
+
+            // do not remove number notation
+            if prefix.range(of: "number",
+                            options: .backwards,
+                            range: nil,
+                            locale: nil)?.upperBound != range.lowerBound {
+                str = str.replacingCharacters(in: range, with: "")
+                    .trimLeadingWhitespace()
+                    .trimTrailingWhitespace()
+            } else {
+                str = String(str.suffix(from: range.upperBound))
+                    .trimLeadingWhitespace()
+                    .trimTrailingWhitespace()
+            }
+
         }
 
         return str
@@ -68,11 +83,11 @@ extension String {
     }
     
     func trimTrailingWhitespace() -> String {
-        return self.trimTrailingCharacters(in: .whitespaces)
+        return self.trimTrailingCharacters(in: .whitespacesAndNewlines)
     }
     
     func trimLeadingWhitespace() -> String {
-        return self.trimLeadingCharacters(in: .whitespaces)
+        return self.trimLeadingCharacters(in: .whitespacesAndNewlines)
     }
 
     func allIndices(of substring: String) -> [String.Index] {

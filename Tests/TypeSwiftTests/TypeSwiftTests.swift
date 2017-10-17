@@ -373,13 +373,13 @@ class TypeSwiftTests: XCTestCase {
         let str = """
         æadfjs kdfa fdlæakfkjdaldkf/* aædflkja kækasd */
         fd sj lfdasæ// lfdkaæ jkldf/*
-        Some
+        Some number/*UInt*/
         """
 
         let exp = """
         æadfjs kdfa fdlæakfkjdaldkf
         fd sj lfdasæ
-        Some
+        Some number/*UInt*/
         """
 
         XCTAssert(str.trimComments() == exp)
