@@ -225,8 +225,6 @@ class TypeSwiftTests: XCTestCase {
         self.x = x
         self.y = y
         }
-
-
         func someFunc()-> String {
         return \"some string\"
         }
