@@ -20,6 +20,12 @@ public struct CodeBlock: TypeScriptInitializable, SwiftStringConvertible {
         let regexForVariable = "\\$\\{[^\\}]*\\}"
 
         if let range = str.rangeOfTypeScriptFormatString() {
+            let quoteStart: Range<String.Index> = range.lowerBound..<str.index(after: range.lowerBound)
+            let quoteEnd: Range<String.Index> = str.index(before: range.upperBound)..<range.upperBound
+
+            str = str.replacingCharacters(in: quoteStart, with: "\"")
+            str = str.replacingCharacters(in: quoteEnd, with: "\"")
+
             var stringFormat = String(str[range])
 
 

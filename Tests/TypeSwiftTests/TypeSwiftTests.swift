@@ -150,6 +150,17 @@ class TypeSwiftTests: XCTestCase {
         internal let people: [(NSNumber, Person)]
         private static var street: UInt
         public var number: NSNumber
+
+        init(_ people: [(NSNumber, Person)], _ street: UInt, _ number: NSNumber) {
+        self.people = people
+        self.street = street
+        self.number = number
+        }
+        public init(people: [(NSNumber, Person)], street: UInt, number: NSNumber) {
+        self.people = people
+        self.street = street
+        self.number = number
+        }
         }
         """
         var body = try! ModelBody(typescript: raw)
@@ -196,6 +207,15 @@ class TypeSwiftTests: XCTestCase {
         public struct Foo: Interface {
         public let x: NSNumber
         private var y: NSNumber
+
+        init(_ x: NSNumber, _ y: NSNumber) {
+        self.x = x
+        self.y = y
+        }
+        public init(x: NSNumber, y: NSNumber) {
+        self.x = x
+        self.y = y
+        }
         }
         """
         var model: Model? = try! Model(typescript: raw)
@@ -213,7 +233,7 @@ class TypeSwiftTests: XCTestCase {
     func testCodeBlock() {
         let body = try! CodeBlock(typescript: """
         {
-        return "/path/to/${userID}/${dialogID}"
+        return `/path/to/${userID}/${dialogID}`
         }
         """)
 
@@ -232,7 +252,7 @@ class TypeSwiftTests: XCTestCase {
     func testFunction() {
         let function = try! Function(typescript: """
         function getReference(dialogID: string, userID: number/*UInt*/) : string {
-        return "/path/to/${userID}/${dialogID}"
+        return `/path/to/${userID}/${dialogID}`
         }
         """)
 
@@ -251,7 +271,7 @@ class TypeSwiftTests: XCTestCase {
         }
         }
         function some(userID: string) : string {
-        return \"something/${userID}\"
+        return `something/${userID}`
         }
         }
         export default class Foo {
@@ -278,9 +298,25 @@ class TypeSwiftTests: XCTestCase {
         public struct Foo {
         public let x: NSNumber
         private var y: NSNumber
+
+        init(_ x: NSNumber, _ y: NSNumber) {
+        self.x = x
+        self.y = y
+        }
+        public init(x: NSNumber, y: NSNumber) {
+        self.x = x
+        self.y = y
+        }
         }
         public struct Bar {
         internal var property: [(Bool, String)]
+
+        init(_ property: [(Bool, String)]) {
+        self.property = property
+        }
+        public init(property: [(Bool, String)]) {
+        self.property = property
+        }
         }
         """
 

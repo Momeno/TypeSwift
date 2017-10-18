@@ -136,7 +136,7 @@ extension String {
     }
 
     func rangeOfTypeScriptFormatString() -> Range<String.Index>? {
-        let regex = "\\\".*\\\""
+        let regex = "(\\`.*\\`)|(\\\".*\\\")|(\\'.*\\')"
         return self.range(of: regex,
                           options: .regularExpression,
                           range: nil,

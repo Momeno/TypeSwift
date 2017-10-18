@@ -10,13 +10,11 @@ import Foundation
 public struct ModelBody: TypeScriptInitializable, SwiftStringConvertible {
     
     let properties: [(access: PropertyAccessLevel, scope: PropertyScope, perm: Permission, def: PropertyDefinition)]
-    
+    let functions: [Function]
+
     public var swiftValue: String {
         let joined = properties.map {
-                let access = $0.0
-                let scope = $0.1
-                let perm = $0.2
-                let def = $0.3
+                let access = $0.0; let scope = $0.1; let perm = $0.2; let def = $0.3
 
                 switch scope {
                 case .none:
@@ -26,8 +24,14 @@ public struct ModelBody: TypeScriptInitializable, SwiftStringConvertible {
                 }
             }
             .joined(separator: "\n")
-        return "{\n\(joined)\n}"
+        let functionsString = self.functions.map {
+            $0.swiftValue
+        }
+        .joined(separator: "\n")
+        return "{\n\(joined)\n\(functionsString)\n\(self.getSwiftInitMethods())\n}"
     }
+
+
     
     public init(typescript: String) throws {
         guard let index = typescript.index(of: "{") else {
@@ -117,5 +121,48 @@ public struct ModelBody: TypeScriptInitializable, SwiftStringConvertible {
             arr.append((access, scope, permission, definition))
         }
         self.properties = arr
+        self.functions = functions
+    }
+
+    func getSwiftInitMethods() -> String {
+        let constructParams: (Bool) -> String = { hasLabels in
+
+            return self.properties.map { tuple in
+                let def = tuple.3
+                var variableName: String
+                var swiftType: String
+                switch def {
+                case .definite(let name, let type):
+                    variableName = name
+                    swiftType = type.swiftValue
+                case .optional(let name, let type):
+                    variableName = name
+                    swiftType = type.swiftValue
+                }
+                if hasLabels {
+                    return "\(variableName): \(swiftType)"
+                } else {
+                    return "_ \(variableName): \(swiftType)"
+                }
+                }
+                .joined(separator: ", ")
+        }
+
+        let bodyParams = self.properties.map {
+            var variableName: String
+            switch $0.def {
+            case .definite(let name, _):
+                variableName = name
+            case .optional(let name, _):
+                variableName = name
+            }
+            return "self.\(variableName) = \(variableName)"
+            }
+            .joined(separator: "\n")
+        let cStyleParams = constructParams(false)
+        let cStyleInit = "init(\(cStyleParams)) {\n\(bodyParams)\n}"
+        let regularInit = "public init(\(constructParams(true))) {\n\(bodyParams)\n}"
+        let initString = "\(cStyleInit)\n\(regularInit)"
+        return initString
     }
 }
