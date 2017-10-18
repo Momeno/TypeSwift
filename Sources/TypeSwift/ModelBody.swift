@@ -131,33 +131,41 @@ public struct ModelBody: TypeScriptInitializable, SwiftStringConvertible {
                 var variableName: String
                 var swiftType: String
                 switch def {
-                case .definite(let name, let type):
+                case .definite(let name, let type, _),
+                     .optional(let name, let type):
                     variableName = name
-                    swiftType = type.swiftValue
-                case .optional(let name, let type):
-                    variableName = name
-                    swiftType = type.swiftValue
+                    swiftType = type?.swiftValue ?? "Any"
                 }
-                if hasLabels {
-                    return "\(variableName): \(swiftType)"
+                if tuple.scope.isStatic == false {
+                    if hasLabels {
+                        return "\(variableName): \(swiftType)"
+                    } else {
+                        return "_ \(variableName): \(swiftType)"
+                    }
                 } else {
-                    return "_ \(variableName): \(swiftType)"
+                    return ""
                 }
-                }
-                .joined(separator: ", ")
+            }
+            .filter { $0.isEmpty == false }
+            .joined(separator: ", ")
         }
 
         let bodyParams = self.properties.map {
             var variableName: String
             switch $0.def {
-            case .definite(let name, _):
-                variableName = name
-            case .optional(let name, _):
+            case .definite(let name, _, _),
+                 .optional(let name, _):
                 variableName = name
             }
-            return "self.\(variableName) = \(variableName)"
+            if $0.scope.isStatic == false {
+                return "self.\(variableName) = \(variableName)"
+            } else {
+                return ""
             }
-            .joined(separator: "\n")
+        }
+        .filter { $0.isEmpty == false}
+        .joined(separator: "\n")
+
         let cStyleParams = constructParams(false)
         let cStyleInit = "init(\(cStyleParams)) {\n\(bodyParams)\n}"
         let regularInit = "public init(\(constructParams(true))) {\n\(bodyParams)\n}"

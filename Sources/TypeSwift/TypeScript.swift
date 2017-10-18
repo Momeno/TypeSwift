@@ -52,7 +52,7 @@ public enum TypeScript: TypeScriptInitializable, SwiftStringConvertible {
         var elementRange: Range<String.Index>!
         if working.hasPrefix(.`import`){
             typescript1 = .empty
-            let upper = working.rangeOfCharacter(from: CharacterSet(charactersIn: ";\n"))?.upperBound ?? working.endIndex
+            let upper = working.rangeOfImport()?.upperBound ?? working.endIndex
             elementRange = working.startIndex..<upper
         } else if working.hasPrefix(.functionDeclaration) {
             guard let start = working.rangeOfFunction()?.lowerBound,

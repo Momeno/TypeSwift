@@ -135,6 +135,15 @@ extension String {
         }
     }
 
+    func rangeOfImport() -> Range<String.Index>? {
+        let regex = "import\\s+(\\w+|(\\{(\\w|\\n|\\s|\\,)*\\s*\\}))\\s*from\\s+(\\'.*\\'|\\\".*\\\"|`.*`)"
+
+        return self.range(of: regex,
+                          options: .regularExpression,
+                          range: nil,
+                          locale: nil)
+    }
+
     func rangeOfTypeScriptFormatString() -> Range<String.Index>? {
         let regex = "(\\`.*\\`)|(\\\".*\\\")|(\\'.*\\')"
         return self.range(of: regex,

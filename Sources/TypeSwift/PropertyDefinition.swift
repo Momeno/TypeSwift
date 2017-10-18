@@ -8,16 +8,15 @@
 import Foundation
 
 public enum PropertyDefinition: TypeScriptInitializable, SwiftStringConvertible {
-    case optional(String, Type)
-    case definite(String, Type)
-//    case indexSignature(String, Type, Type)
+    case optional(String, Type?)
+    case definite(String, Type?, Expression?)
     
     public var swiftValue: String {
         switch self {
-        case .definite(let name, let type):
-            return "\(name): \(type.swiftValue)"
+        case .definite(let name, let type, let assignment):
+            return "\(name)\(type?.swiftValue != nil ? ": \(type!.swiftValue)" : "")\(assignment != nil ? " = \(assignment!.swiftValue)" : "")"
         case .optional(let name, let type):
-            return "\(name): \(type.swiftValue)?"
+            return "\(name)\(type?.swiftValue != nil ? ": \(type!.swiftValue)" : "")?"
         }
     }
 
@@ -26,34 +25,59 @@ public enum PropertyDefinition: TypeScriptInitializable, SwiftStringConvertible 
             throw TypeScriptError.invalidDeclaration(typescript)
         }
 
-        if first == "[" {
+        guard first != "[" else {
             // index signature
             let msg = "[ at the start of a property declaration is a sign of an Index Signature, which is not supported"
             fatalError(msg)
-        } else {
-            let components = typescript.components(separatedBy: ":")
+        }
 
-            guard components.count == 2 else {
-                throw TypeScriptError.invalidDeclaration(typescript)
-            }
+        let splitIndex = typescript.index(of: ":")
+        let equalsIndex = typescript.index(of: "=")
+        let definesType =  splitIndex != nil && (equalsIndex != nil ? splitIndex ?? typescript.endIndex < equalsIndex! : true)
+        let definesValue = equalsIndex != nil
 
-            var isOptional = false
+        var typeRaw: String?
+        var assignment: String?
+        if definesValue {
+            assignment = String(typescript.suffix(from: typescript.index(after: equalsIndex!)))
+                .trimLeadingWhitespace()
+                .trimTrailingWhitespace()
+        }
 
-            var name = components[0].trimmingCharacters(in: .whitespaces)
-            let typeRaw = components[1].trimmingCharacters(in: .whitespaces)
-
-            let type = try Type(typescript: typeRaw)
-
-            if name.hasSuffix("?") {
-                isOptional = true
-                name = String(name[name.startIndex..<name.index(before: name.endIndex)])
-            }
-
-            if isOptional {
-                self = .optional(name, type)
+        if definesType {
+            if definesValue {
+                typeRaw = String(typescript[typescript.index(after: splitIndex!)..<equalsIndex!])
+                    .trimmingCharacters(in: .whitespaces)
             } else {
-                self = .definite(name, type)
+                typeRaw = String(typescript.suffix(from: typescript.index(after: splitIndex!)))
+                    .trimmingCharacters(in: .whitespaces)
             }
         }
+
+        let nameEndIndex = definesType ? splitIndex! : equalsIndex ?? typescript.endIndex
+        var name = String(typescript.prefix(upTo: nameEndIndex))
+            .trimTrailingWhitespace()
+            .trimLeadingWhitespace()
+
+        var isOptional = false
+
+        if name.hasSuffix("?") {
+            isOptional = true
+            name = String(name[name.startIndex..<name.index(before: name.endIndex)])
+        }
+
+        guard (definesValue || definesType) || (name.index(of: " ") == nil) else {
+            throw TypeScriptError.invalidDeclaration(typescript)
+        }
+
+        let type: Type? = definesType ? try Type(typescript: typeRaw!) : nil
+        let expr: Expression? = definesValue ? try Expression(typescript: assignment!) : nil
+
+        if isOptional {
+            self = .optional(name, type)
+        } else {
+            self = .definite(name, type, expr)
+        }
+
     }
 }

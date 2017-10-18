@@ -7,54 +7,39 @@
 
 import Foundation
 
-public struct CodeBlock: TypeScriptInitializable, SwiftStringConvertible {
+public enum CodeBlock: TypeScriptInitializable, SwiftStringConvertible {
 
-    public let swiftValue: String
+    case empty
+    case expressions([Expression])
 
-    private init(swiftValue: String) {
-        self.swiftValue = swiftValue
+    public var swiftValue: String {
+        switch self {
+        case .empty:
+            return ""
+        case .expressions(let exprs):
+            let expressions = exprs.map { $0.swiftValue }
+                .filter { $0.isEmpty == false }
+                .joined(separator: "\n")
+            return "{\n\(expressions)\n}"
+        }
     }
 
     public init(typescript: String) throws {
-        var str = typescript
-        let regexForVariable = "\\$\\{[^\\}]*\\}"
 
-        if let range = str.rangeOfTypeScriptFormatString() {
-            let quoteStart: Range<String.Index> = range.lowerBound..<str.index(after: range.lowerBound)
-            let quoteEnd: Range<String.Index> = str.index(before: range.upperBound)..<range.upperBound
-
-            str = str.replacingCharacters(in: quoteStart, with: "\"")
-            str = str.replacingCharacters(in: quoteEnd, with: "\"")
-
-            var stringFormat = String(str[range])
-
-
-            while let rangeOfVariable = stringFormat.range(of: regexForVariable,
-                                               options: .regularExpression,
-                                               range: nil,
-                                               locale: nil) {
-
-                let varInsertion = String(stringFormat[rangeOfVariable])
-
-                let rangeOfLast = stringFormat.index(before: varInsertion.endIndex)..<varInsertion.endIndex
-                let newStr = varInsertion.replacingCharacters(in: rangeOfLast,
-                                                              with: ")")
-                    .replacingOccurrences(of: "${", with: "\\(")
-
-                stringFormat = stringFormat.replacingOccurrences(of: varInsertion,
-                                                                 with: newStr)
-            }
-
-            str = str.replacingCharacters(in: range, with: stringFormat)
+        guard typescript.count > "{ }".count,
+            let startOfExpressions = typescript.rangeOfCharacter(from: CharacterSet(charactersIn: "{") )?.upperBound else {
+            self = .empty
+            return
         }
 
-        if str.range(of: regexForVariable,
-                     options: .regularExpression,
-                     range: nil,
-                     locale: nil) != nil {
-            try self.init(typescript: str)
-        } else {
-            self.init(swiftValue: str)
-        }
+        let innerRange = startOfExpressions..<typescript.index(before: typescript.endIndex)
+        let innerString = String(typescript[innerRange])
+
+        let expressionEndingSet = CharacterSet(charactersIn: "\n;")
+        let expressions = try innerString.components(separatedBy: expressionEndingSet)
+            .flatMap(Expression.init(typescript:))
+
+        self = .expressions(expressions)
+
     }
 }

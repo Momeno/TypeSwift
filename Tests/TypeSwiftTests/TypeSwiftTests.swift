@@ -135,6 +135,10 @@ class TypeSwiftTests: XCTestCase {
         
         property = try? PropertyDefinition(typescript: "optional? string")
         XCTAssertNil(property)
+
+        property = try? PropertyDefinition(typescript: "someVar: string = `string ${SomeClass.someStaticVar}`")
+        let exp = "someVar: String = \"string \\(SomeClass.someStaticVar)\""
+        XCTAssert(property?.swiftValue == exp)
     }
     
     func testModelBody() {
@@ -150,14 +154,12 @@ class TypeSwiftTests: XCTestCase {
         internal let people: [(NSNumber, Person)]
         private static var street: UInt
         public var number: NSNumber
-        init(_ people: [(NSNumber, Person)], _ street: UInt, _ number: NSNumber) {
+        init(_ people: [(NSNumber, Person)], _ number: NSNumber) {
         self.people = people
-        self.street = street
         self.number = number
         }
-        public init(people: [(NSNumber, Person)], street: UInt, number: NSNumber) {
+        public init(people: [(NSNumber, Person)], number: NSNumber) {
         self.people = people
-        self.street = street
         self.number = number
         }
         }
@@ -266,6 +268,14 @@ class TypeSwiftTests: XCTestCase {
     
     func testTypeScript() {
         let raw = """
+        import {
+          UserId,
+          DeviceId,
+          GameId,
+          ChatDialogId,
+          BalrogEnum,
+          BalrogRawReprisentable,
+        } from './InterfacesAndIds'
         type T = Array<number/*UInt*/>
         module Module {
         type V = [string, number]
@@ -460,6 +470,44 @@ class TypeSwiftTests: XCTestCase {
         test = "{} }   "
         let notExp = "{} }"
         XCTAssertFalse(notExp == String(test[test.rangeOfBody()!]))
+    }
+
+    func testImportRegex() {
+        var str = """
+        import DatabaseReference from './Refrences'
+        dfafdasf
+        import DatabaseReference from "./Refrences"
+
+        fdsa
+        """
+
+        let importStr = """
+        import {
+          UserId,
+          DeviceId,
+          GameId,
+          ChatDialogId,
+          BalrogEnum,
+          BalrogRawReprisentable,
+        } from './InterfacesAndIds'
+        """
+
+        XCTAssert(String(str[str.rangeOfImport()!]) == "import DatabaseReference from './Refrences'")
+        str = """
+        ældkfj aklf dfa jkfldjfw slkfs klj fa
+        dlsa jfldkj d djlsk
+
+        faasfdf
+        \(importStr)
+
+
+        fdaads fkl dajkl klfads jadsk jfadsklj dfa kjaadkf adf
+        adfdfkls jaædsklj fs djkjd sfkldjaf a kfads klæ adfssxkæ jadfs
+        ads dklfs jkadsj fkljads fla
+        fasdfadlkjf adkæljf jæaldæj fad
+        """
+
+        XCTAssert(str[str.rangeOfImport()!] == importStr)
     }
     
     static var allTests = [

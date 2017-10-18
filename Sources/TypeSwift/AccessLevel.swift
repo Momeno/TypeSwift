@@ -36,4 +36,7 @@ public enum PropertyScope: String, SwiftStringConvertible {
             return self.rawValue
         }
     }
+    public var isStatic: Bool {
+        return self.rawValue == PropertyScope.`static`.rawValue
+    }
 }
