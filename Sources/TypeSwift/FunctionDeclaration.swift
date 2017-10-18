@@ -13,12 +13,15 @@ public struct FunctionDeclaration: SwiftStringConvertible, TypeScriptInitializab
     let functionParams: [PropertyDefinition]
 
     public var swiftValue: String {
-        var str = self.typescript
+        var str = self.typescript.trimLeadingWhitespace()
 
         let function = "function"
 
+        var prefix = ""
         if let range = self.typescript.range(of: function) {
             str = str.replacingCharacters(in: range, with: "func")
+        } else {
+            prefix = "func "
         }
 
         let regex = "\\(.*\\)"
@@ -51,7 +54,7 @@ public struct FunctionDeclaration: SwiftStringConvertible, TypeScriptInitializab
             }
         }
 
-        return str
+        return "\(prefix)\(str)"
     }
 
     public init(typescript: String) throws {

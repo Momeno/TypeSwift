@@ -150,7 +150,6 @@ class TypeSwiftTests: XCTestCase {
         internal let people: [(NSNumber, Person)]
         private static var street: UInt
         public var number: NSNumber
-
         init(_ people: [(NSNumber, Person)], _ street: UInt, _ number: NSNumber) {
         self.people = people
         self.street = street
@@ -200,6 +199,9 @@ class TypeSwiftTests: XCTestCase {
         export class Foo implements Interface {
         public readonly x: number;
         private y: number;
+        someFunc(): string {
+        return 'some string'
+        }
         }
         """
         
@@ -207,7 +209,6 @@ class TypeSwiftTests: XCTestCase {
         public struct Foo: Interface {
         public let x: NSNumber
         private var y: NSNumber
-
         init(_ x: NSNumber, _ y: NSNumber) {
         self.x = x
         self.y = y
@@ -215,6 +216,9 @@ class TypeSwiftTests: XCTestCase {
         public init(x: NSNumber, y: NSNumber) {
         self.x = x
         self.y = y
+        }
+        func someFunc()-> String {
+        return \"some string\"
         }
         }
         """
@@ -298,7 +302,6 @@ class TypeSwiftTests: XCTestCase {
         public struct Foo {
         public let x: NSNumber
         private var y: NSNumber
-
         init(_ x: NSNumber, _ y: NSNumber) {
         self.x = x
         self.y = y
@@ -310,7 +313,6 @@ class TypeSwiftTests: XCTestCase {
         }
         public struct Bar {
         internal var property: [(Bool, String)]
-
         init(_ property: [(Bool, String)]) {
         self.property = property
         }

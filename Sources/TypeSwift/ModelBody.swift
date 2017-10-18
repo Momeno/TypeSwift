@@ -28,7 +28,7 @@ public struct ModelBody: TypeScriptInitializable, SwiftStringConvertible {
             $0.swiftValue
         }
         .joined(separator: "\n")
-        return "{\n\(joined)\n\(functionsString)\n\(self.getSwiftInitMethods())\n}"
+        return "{\n\(joined)\n\(self.getSwiftInitMethods())\n\(functionsString.isEmpty == false ? functionsString + "\n" : "")}"
     }
 
 
@@ -49,9 +49,8 @@ public struct ModelBody: TypeScriptInitializable, SwiftStringConvertible {
         var functions: [Function] = []
         while let functionRange = workingString.rangeOfFunction() {
             let start = functionRange.lowerBound
-            let suffix = String(workingString.suffix(from: start))
             
-            guard let rangeOfBody = suffix.rangeOfBody() else {
+            guard let rangeOfBody = workingString.rangeOfBody() else {
                 throw TypeScriptError.invalidFunctionDeclaration
             }
             let totalFunctionRange = start...rangeOfBody.upperBound
