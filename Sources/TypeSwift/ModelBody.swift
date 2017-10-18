@@ -31,8 +31,6 @@ public struct ModelBody: TypeScriptInitializable, SwiftStringConvertible {
         return "{\n\(joined)\n\(self.getSwiftInitMethods())\n\(functionsString.isEmpty == false ? functionsString + "\n" : "")}"
     }
 
-
-    
     public init(typescript: String) throws {
         guard let index = typescript.index(of: "{") else {
             throw TypeScriptError.cannotDeclareModelWithoutBody
@@ -48,17 +46,19 @@ public struct ModelBody: TypeScriptInitializable, SwiftStringConvertible {
 
         var functions: [Function] = []
         while let functionRange = workingString.rangeOfFunction() {
-            let start = functionRange.lowerBound
-            
-            guard let rangeOfBody = workingString.rangeOfBody() else {
+
+            let suffix = String(workingString.suffix(from: functionRange.lowerBound))
+            guard let rangeOfBody = suffix.rangeOfBody() else {
                 throw TypeScriptError.invalidFunctionDeclaration
             }
-            let totalFunctionRange = start...rangeOfBody.upperBound
-            functions.append(try Function(typescript: String(workingString[totalFunctionRange])))
+            let totalFunctionRange = suffix.startIndex...rangeOfBody.upperBound
+            functions.append(try Function(typescript: String(suffix[totalFunctionRange])))
             workingString = workingString.replacingCharacters(in: totalFunctionRange, with: "")
         }
         
         let components = workingString.components(separatedBy: CharacterSet(charactersIn: "\n;"))
+            .map { $0.trimTrailingWhitespace().trimLeadingWhitespace() }
+            .filter { $0.isEmpty == false }
 
         var arr: [(PropertyAccessLevel, PropertyScope, Permission, PropertyDefinition)] = []
 
@@ -73,32 +73,14 @@ public struct ModelBody: TypeScriptInitializable, SwiftStringConvertible {
             var scope: PropertyScope = .none
             var permission: Permission = .readAndWrite
 
-            let properties = element.components(separatedBy: ":")
-                .map {
-                    $0.trimLeadingWhitespace()
-                        .trimTrailingWhitespace()
-                }
-                .filter {
-                    $0.isEmpty == false
-                }
+            let nameDeclarationEnd = element.index(of: ":") ?? (element.index(of: "=") ?? element.endIndex)
+            let afterColon = String(element.suffix(from: nameDeclarationEnd))
+                .trimTrailingWhitespace()
+                .trimLeadingWhitespace()
 
-            guard properties.count == 2 else {
-                throw TypeScriptError.invalidDeclaration(element)
-            }
-
-            let nameDeclarationObjects = properties.first?
+            let nameDeclaration = String(element.prefix(upTo: nameDeclarationEnd))
                 .components(separatedBy: " ")
-                .map { str in
-                    str.trimTrailingWhitespace()
-                        .trimLeadingWhitespace()
-                }
-                .filter {
-                    return $0.isEmpty == false
-                }
-
-            guard let nameDeclaration = nameDeclarationObjects else {
-                throw TypeScriptError.invalidDeclaration(element)
-            }
+                .filter { $0.isEmpty == false }
 
             guard let name = nameDeclaration.last else {
                 throw TypeScriptError.invalidDeclaration(element)
@@ -114,7 +96,7 @@ public struct ModelBody: TypeScriptInitializable, SwiftStringConvertible {
                 }
             }
 
-            let definitionRaw = "\(name): \(properties[1])"
+            let definitionRaw = "\(name)\(afterColon)"
             let definition = try PropertyDefinition(typescript: definitionRaw)
             
             arr.append((access, scope, permission, definition))
@@ -170,6 +152,7 @@ public struct ModelBody: TypeScriptInitializable, SwiftStringConvertible {
         let cStyleInit = "init(\(cStyleParams)) {\n\(bodyParams)\n}"
         let regularInit = "public init(\(constructParams(true))) {\n\(bodyParams)\n}"
         let initString = "\(cStyleInit)\n\(regularInit)"
-        return initString
+
+        return bodyParams.isEmpty ? "" : initString
     }
 }

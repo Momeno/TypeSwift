@@ -17,8 +17,6 @@ enum PrefixType {
     case namespace
 
     case functionDeclaration
-
-    case `import`
 }
 
 extension String {
@@ -118,8 +116,6 @@ extension String {
     
     func hasPrefix(_ prefixType: PrefixType) -> Bool {
         switch prefixType {
-        case .`import`:
-            return importPrefix() != nil
         case .typeAlias:
             return typealiasDeclarationPrefix() != nil
         case .interface:
@@ -133,6 +129,14 @@ extension String {
         case .functionDeclaration:
             return self.rangeOfFunction()?.lowerBound == self.startIndex
         }
+    }
+
+    func rangeOfConstructor() -> Range<String.Index>? {
+        let regex = "constructor\\s*\\([^\\)]*\\)\\s*\\{([^\\}]|\\{\\.*\\})*\\}"
+        return self.range(of: regex,
+                          options: .regularExpression,
+                          range: nil,
+                          locale: nil)
     }
 
     func rangeOfImport() -> Range<String.Index>? {

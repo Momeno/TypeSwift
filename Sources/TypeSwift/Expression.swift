@@ -22,8 +22,12 @@ public struct Expression: SwiftStringConvertible, TypeScriptInitializable {
             let quoteStart: Range<String.Index> = range.lowerBound..<str.index(after: range.lowerBound)
             let quoteEnd: Range<String.Index> = str.index(before: range.upperBound)..<range.upperBound
 
-            str = str.replacingCharacters(in: quoteStart, with: "\"")
-            str = str.replacingCharacters(in: quoteEnd, with: "\"")
+            str = str.replacingCharacters(in: quoteStart, with: """
+            "
+            """)
+            str = str.replacingCharacters(in: quoteEnd, with: """
+            "
+            """)
 
             var stringFormat = String(str[range])
 

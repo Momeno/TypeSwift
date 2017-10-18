@@ -43,18 +43,27 @@ public enum TypeScript: TypeScriptInitializable, SwiftStringConvertible {
     }
     
     public init(typescript: String) throws {
-        let working = typescript
+        var working = typescript
             .trimLeadingWhitespace()
             .trimTrailingWhitespace()
             .trimComments()
 
+        while let rangeOfImport = working.rangeOfImport() {
+            working = working.replacingCharacters(in: rangeOfImport, with: "")
+                .trimLeadingWhitespace()
+                .trimTrailingWhitespace()
+        }
+
+        while let rangeOfConstructor = working.rangeOfConstructor() {
+            working = working.replacingCharacters(in: rangeOfConstructor, with: "")
+                .trimTrailingWhitespace()
+                .trimLeadingWhitespace()
+        }
+
         var typescript1: TypeScript!
         var elementRange: Range<String.Index>!
-        if working.hasPrefix(.`import`){
-            typescript1 = .empty
-            let upper = working.rangeOfImport()?.upperBound ?? working.endIndex
-            elementRange = working.startIndex..<upper
-        } else if working.hasPrefix(.functionDeclaration) {
+
+        if working.hasPrefix(.functionDeclaration) {
             guard let start = working.rangeOfFunction()?.lowerBound,
                 let end = working.rangeOfBody()?.upperBound else {
                 throw TypeScriptError.invalidFunctionDeclaration

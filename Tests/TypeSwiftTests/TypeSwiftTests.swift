@@ -22,9 +22,11 @@ class TypeSwiftTests: XCTestCase {
         
         num = SwiftNumber(rawValue: "Int")
         XCTAssertNotNil(num)
-        
+
         num = SwiftNumber(rawValue: "Gibberish")
         XCTAssertNil(num)
+
+
     }
     
     func testType() {
@@ -137,7 +139,11 @@ class TypeSwiftTests: XCTestCase {
         XCTAssertNil(property)
 
         property = try? PropertyDefinition(typescript: "someVar: string = `string ${SomeClass.someStaticVar}`")
-        let exp = "someVar: String = \"string \\(SomeClass.someStaticVar)\""
+        var exp = "someVar: String = \"string \\(SomeClass.someStaticVar)\""
+        XCTAssert(property?.swiftValue == exp)
+
+        property = try? PropertyDefinition(typescript: "reference = DatabaseReference.devices")
+        exp = "reference = DatabaseReference.devices"
         XCTAssert(property?.swiftValue == exp)
     }
     
@@ -219,6 +225,8 @@ class TypeSwiftTests: XCTestCase {
         self.x = x
         self.y = y
         }
+
+
         func someFunc()-> String {
         return \"some string\"
         }
@@ -276,6 +284,7 @@ class TypeSwiftTests: XCTestCase {
           BalrogEnum,
           BalrogRawReprisentable,
         } from './InterfacesAndIds'
+        // Some comment
         type T = Array<number/*UInt*/>
         module Module {
         type V = [string, number]
@@ -293,6 +302,10 @@ class TypeSwiftTests: XCTestCase {
         private y: number;
         } export class Bar {
         protected property : Array<[boolean, string]>
+        }
+        class FooBar {
+        static some = \"some\"
+        static other = \"other\"
         }
         """
         
@@ -330,40 +343,14 @@ class TypeSwiftTests: XCTestCase {
         self.property = property
         }
         }
+        struct FooBar {
+        public static var some = \"some\"
+        public static var other = \"other\"
+
+        }
         """
 
         XCTAssert((try! TypeScript(typescript: raw)).swiftValue == exp)
-
-
-        let rawString = """
-        import DatabaseReference from './Refrences'
-
-        export default class PublicProfile {
-          timestamp: any;
-          display_name?: string;
-          user_name: string;
-          id: string;
-          public static reference = DatabaseReference.publicProlfile
-
-          constructor(config: PublicProfileConfig) {
-            this.timestamp = config.timestamp;
-            this.id = config.id;
-            this.user_name = config.user_name;
-            if (config.display_name) {
-              this.display_name = config.display_name;
-            }
-          }
-        }
-
-        interface PublicProfileConfig {
-          timestamp: any,
-          id: string,
-          user_name: string,
-          display_name?: string,
-        }
-        """
-        let ts = try! TypeScript(typescript: rawString)
-        XCTAssert(ts.swiftValue == "")
     }
 
     func testStringTrimHelpers() {
@@ -508,6 +495,20 @@ class TypeSwiftTests: XCTestCase {
         """
 
         XCTAssert(str[str.rangeOfImport()!] == importStr)
+    }
+
+    func testBigTest() {
+        let documentsPath = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0]
+
+        let url = URL(fileURLWithPath: documentsPath).appendingPathComponent("typeSwift.txt")
+        do {
+            let data = try Data(contentsOf: url)
+            let str = String(data: data, encoding: .utf8)
+            let ts = try? TypeScript(typescript: str!)
+            XCTAssert(ts != nil && ts?.swiftValue.isEmpty == false)
+        } catch {
+            print("Error: \n\(error.localizedDescription)")
+        }
     }
     
     static var allTests = [
