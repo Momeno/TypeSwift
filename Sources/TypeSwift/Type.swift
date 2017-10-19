@@ -85,14 +85,6 @@ public indirect enum Type: TypeScriptInitializable, SwiftStringConvertible {
 
             self = .tuple(type1, type2)
         } else {
-            guard let firstChar = typescript.first else {
-                throw TypeScriptError.invalidDeclaration(typescript)
-            }
-            let isCapitalized = "\(firstChar)".lowercased() != "\(firstChar)"
-            guard isCapitalized else {
-                throw TypeScriptError.invalidDeclaration(typescript)
-            }
-
             self = .custom(typescript)
         }
     }

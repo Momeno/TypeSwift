@@ -105,8 +105,14 @@ public enum TypeScript: TypeScriptInitializable, SwiftStringConvertible {
                 typescript1 = .interface(interface)
 
             } else if working.hasPrefix(.model) {
-                let model = try Model(typescript: raw)
-                typescript1 = .model(model)
+                do {
+                    let model = try Model(typescript: raw)
+                    typescript1 = .model(model)
+                } catch {
+                    print(error.localizedDescription)
+                    print("")
+                }
+
             } else if working.hasPrefix(.namespace) {
                 guard let namespace = String(working.suffix(from: working.index(working.startIndex,
                                                                           offsetBy: working.namespaceDeclarationPrefix()!.count)))
@@ -146,18 +152,7 @@ public enum TypeScript: TypeScriptInitializable, SwiftStringConvertible {
                 .trimLeadingCharacters(in: .whitespacesAndNewlines)
         }
 
-        if ((try? TypeScript(typescript: nextTypeScript)) ?? nil) != nil {
-            let typescript2 = try TypeScript(typescript: nextTypeScript)
-            self = .composed(typescript1, typescript2)
-        } else if typescript1 != nil {
-            self = typescript1
-        } else {
-            if let index = working.index(of: "\n") ?? working.index(of: ";") {
-                let working = String(working[working.startIndex..<index])
-                throw TypeScriptError.unsupportedTypeScript(working)
-            } else {
-                throw TypeScriptError.unsupportedTypeScript(working)
-            }
-        }
+        let typescript2 = (try? TypeScript(typescript: nextTypeScript)) ?? .empty
+        self = .composed(typescript1, typescript2)
     }
 }

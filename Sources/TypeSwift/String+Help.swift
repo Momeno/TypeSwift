@@ -140,7 +140,7 @@ extension String {
     }
 
     func rangeOfImport() -> Range<String.Index>? {
-        let regex = "import\\s+(\\w+|(\\{(\\w|\\n|\\s|\\,)*\\s*\\}))\\s*from\\s+(\\'.*\\'|\\\".*\\\"|`.*`)"
+        let regex = "((import\\s+(\\w+|(\\{(\\w|\\n|\\s|\\,)*\\s*\\}))\\s*from\\s+(\\'.*\\'|\\\".*\\\"|`.*`))|import\\s+.*)"
 
         return self.range(of: regex,
                           options: .regularExpression,

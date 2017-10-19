@@ -56,9 +56,6 @@ class TypeSwiftTests: XCTestCase {
         
         type = try! Type(typescript: "CustomType")
         XCTAssert(type?.swiftValue == "CustomType")
-        
-        type = try? Type(typescript: "customType")
-        XCTAssertNil(type)
     }
     
     func testModelDeclaration() {
@@ -498,14 +495,23 @@ class TypeSwiftTests: XCTestCase {
     func testBigTest() {
         let documentsPath = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0]
 
-        let url = URL(fileURLWithPath: documentsPath).appendingPathComponent("typeSwift.txt")
-        do {
-            let data = try Data(contentsOf: url)
-            let str = String(data: data, encoding: .utf8)
-            let ts = try? TypeScript(typescript: str!)
-            XCTAssert(ts != nil && ts?.swiftValue.isEmpty == false)
-        } catch {
-            print("Error: \n\(error.localizedDescription)")
+        let url = URL(fileURLWithPath: documentsPath).appendingPathComponent("models")
+        let fileManager = FileManager.default
+        let enumerator: FileManager.DirectoryEnumerator = fileManager.enumerator(atPath: url.path)!
+        while let element = enumerator.nextObject() as? String, element.suffix(3) == ".ts" {
+            do {
+                let data = try Data(contentsOf: url.appendingPathComponent(element))
+                let str = String(data: data, encoding: .utf8)
+                do {
+                    let ts = try TypeScript(typescript: str!)
+                    XCTAssert(ts.swiftValue.isEmpty == false)
+                } catch {
+                    print(error.localizedDescription)
+                    print("")
+                }
+            } catch {
+                print("Error: \n\(error.localizedDescription)")
+            }
         }
     }
     
