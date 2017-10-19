@@ -21,8 +21,46 @@ enum PrefixType {
 
 extension String {
     
+    var endOfExpressionIndex: String.Index {
+        let indexOfNewLine = self.index(of: "\n")
+        let indexOfSemiComma = self.index(of: ";")
+        
+        switch (indexOfNewLine, indexOfSemiComma) {
+        case (.some, .some):
+            return indexOfNewLine! > indexOfSemiComma! ? indexOfSemiComma! : indexOfNewLine!
+        case (.some, .none):
+            return indexOfNewLine!
+        case (.none, .some):
+            return indexOfSemiComma!
+        case (.none, .none):
+            return self.endIndex
+        }
+    }
+    
     var isTypeScriptFormatString: Bool {
         return self.rangeOfTypeScriptFormatString() == self.startIndex..<self.endIndex
+    }
+    
+    func componentsWithoutPadding(separatedBy string: String) -> [String] {
+        return self.components(separatedBy: string)
+            .map {
+                return $0.trimLeadingWhitespace()
+                    .trimTrailingWhitespace()
+            }
+            .filter { $0.isEmpty == false }
+    }
+    
+    func componentsWithoutPadding(separatedBy characterSet: CharacterSet) -> [String] {
+        return self.components(separatedBy: characterSet)
+            .map {
+                return $0.trimLeadingWhitespace()
+                    .trimTrailingWhitespace()
+            }
+            .filter { $0.isEmpty == false }
+    }
+    
+    func index(atInt index: Int) -> String.Index {
+        return self.index(self.startIndex, offsetBy: index)
     }
 
     func allIndices(of substring: String) -> [String.Index] {

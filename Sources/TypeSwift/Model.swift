@@ -65,9 +65,8 @@ public struct Model: TypeScriptInitializable, SwiftStringConvertible {
             let end = tmp.range(of: "implements")?.lowerBound ?? tmp.index(of: "{")!
             let sfx = String(tmp.prefix(upTo: end))
 
-            self.extends = sfx.components(separatedBy: ",")
-                .map { $0.trimTrailingWhitespace().trimLeadingWhitespace() }
-                .filter { $0.isEmpty == false }
+            self.extends = sfx.componentsWithoutPadding(separatedBy: ",")
+
         } else { self.extends = nil }
 
         if let implements = suffix.prefix(upTo: brace)
@@ -75,9 +74,8 @@ public struct Model: TypeScriptInitializable, SwiftStringConvertible {
             let tmp = String(suffix.suffix(from: implements.upperBound))
             let sfx = String(tmp.prefix(upTo: tmp.index(of: "{")!))
 
-            self.implements = sfx.components(separatedBy: ",")
-                .map { $0.trimTrailingWhitespace().trimLeadingWhitespace() }
-                .filter { $0.isEmpty == false }
+            self.implements = sfx.componentsWithoutPadding(separatedBy: ",")
+
         } else { self.implements = nil }
 
         self.modelDec = modelDec

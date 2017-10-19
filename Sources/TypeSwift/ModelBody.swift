@@ -46,24 +46,11 @@ public struct ModelBody: TypeScriptInitializable, SwiftStringConvertible {
 
         var functions: [Function] = []
         while let functionRange = workingString.rangeOfFunction() {
-            let rangeOfSuffix: Range<String.Index> = functionRange.lowerBound..<workingString.endIndex
-            var suffix = String(workingString[rangeOfSuffix])
-            guard let rangeOfBody = suffix.rangeOfBody() else {
-                throw TypeScriptError.invalidFunctionDeclaration
-            }
-            let totalFunctionRange = suffix.startIndex...rangeOfBody.upperBound
-            functions.append(try Function(typescript: String(suffix[totalFunctionRange])))
-            suffix = suffix.replacingCharacters(in: totalFunctionRange, with: "")
-            workingString = workingString.replacingCharacters(in: rangeOfSuffix, with: suffix)
+            functions.append(try Function(typescript: String(workingString[functionRange])))
+            workingString = workingString.replacingCharacters(in: functionRange, with: "")
         }
         
-        let components = workingString.components(separatedBy: CharacterSet(charactersIn: "\n;"))
-            .map {
-                $0.trimTrailingWhitespace().trimLeadingWhitespace()
-            }
-            .filter {
-                $0.isEmpty == false
-            }
+        let components = workingString.componentsWithoutPadding(separatedBy: CharacterSet(charactersIn: "\n;"))
 
         var arr: [(PropertyAccessLevel, PropertyScope, Permission, PropertyDefinition)] = []
 

@@ -35,6 +35,34 @@ extension String {
         return str
     }
     
+    func trimImport() -> String {
+        var tmp = self
+        while let rangeOfImport = tmp.rangeOfImport() {
+            tmp = tmp.replacingCharacters(in: rangeOfImport, with: "")
+                .trimLeadingWhitespace()
+                .trimTrailingWhitespace()
+        }
+        return tmp
+    }
+    
+    func suffix(fromInt index: Int) -> String {
+        return String(self.suffix(from: self.index(atInt: index)))
+    }
+    
+    func suffix(fromIndex index: Index) -> String {
+        return String(self.suffix(from: index))
+    }
+    
+    func trimConstructor() -> String {
+        var tmp = self
+        while let rangeOfConstructor = tmp.rangeOfConstructor() {
+            tmp = tmp.replacingCharacters(in: rangeOfConstructor, with: "")
+                .trimTrailingWhitespace()
+                .trimLeadingWhitespace()
+        }
+        return tmp
+    }
+    
     func trimLeadingCharacters(in set: CharacterSet) -> String {
         guard self.isEmpty == false,
             let scalar = self[startIndex].unicodeScalars.first else { return self }

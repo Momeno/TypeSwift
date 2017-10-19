@@ -76,11 +76,7 @@ public struct FunctionDeclaration: SwiftStringConvertible, TypeScriptInitializab
 
         let params = String(typescript[start..<end])
 
-        self.functionParams = try params.components(separatedBy: ",").map {
-            $0.trimTrailingWhitespace()
-                .trimLeadingWhitespace()
-            }
-            .filter { $0.isEmpty == false }
+        self.functionParams = try params.componentsWithoutPadding(separatedBy: ",")
             .flatMap(PropertyDefinition.init)
 
         self.typescript = typescript

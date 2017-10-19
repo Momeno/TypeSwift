@@ -32,20 +32,14 @@ extension String {
         let trimmed = self.trimLeadingWhitespace()
         
         let name = String(trimmed.prefix(upTo: self.index(of: "<")!))
-        let associated = String(self[innerTypeRange]).components(separatedBy: ",")
-            .map {
-                $0.trimTrailingWhitespace().trimLeadingWhitespace()
-            }
-            .filter {
-                $0.isEmpty == false
-        }
+        let associated = String(self[innerTypeRange]).componentsWithoutPadding(separatedBy: ",")
         
         return (name, associated)
         
     }
     
     func rangeOfImport() -> Range<String.Index>? {
-        let regex = "((import\\s+(\\w+|(\\{(\\w|\\n|\\s|\\,)*\\s*\\}))\\s*from\\s+(\\'.*\\'|\\\".*\\\"|`.*`))|import\\s+.*)"
+        let regex = "((import\\s+(\\w+|(\\{(\\w|\\n|\\s|\\,)*\\s*\\}))\\s*from\\s+(\\'.*\\'|\\\".*\\\"|`.*`))|import\\s+.*);?"
         
         return self.range(of: regex,
                           options: .regularExpression,
@@ -62,10 +56,15 @@ extension String {
     }
     
     func rangeOfFunction() -> Range<String.Index>? {
-        return self.range(of: "((public\\s+|private\\s+|protected\\s+)?(static\\s+)?\\s*)(function\\s)?\\s*\\w*\\(.*\\)\\s*\\:\\s*\\w+",
-                          options: .regularExpression,
-                          range: nil,
-                          locale: nil)
+        guard let declarationRange = self.range(of: "((public\\s+|private\\s+|protected\\s+)?(static\\s+)?\\s*)(function\\s)?\\s*\\w*\\(.*\\)\\s*\\:\\s*\\w+",
+                                                options: .regularExpression,
+                                                range: nil,
+                                                locale: nil),
+            let body = self.rangeOfBody() else {
+            return nil
+        }
+        
+        return declarationRange.lowerBound..<body.upperBound
     }
     
     func rangeOfBody() -> Range<String.Index>? {

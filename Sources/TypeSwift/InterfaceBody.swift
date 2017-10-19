@@ -19,45 +19,30 @@ public struct InterfaceBody: TypeScriptInitializable, SwiftStringConvertible {
     }
 
     public init(typescript: String) throws {
-        guard let index = typescript.index(of: "{") else {
+        guard let body = typescript.rangeOfBody() else {
             throw TypeScriptError.cannotDeclareInterfaceWithoutBody
         }
 
-        let start = typescript.index(after: index)
+        let start = typescript.index(after: body.lowerBound)
+        let end = typescript.index(before: body.upperBound)
 
-        guard let end = typescript.rangeOfCharacter(from: CharacterSet(charactersIn:"}"), options: .backwards, range: nil)?.lowerBound else {
-            throw TypeScriptError.cannotDeclareInterfaceWithoutBody
-        }
-
-        let workingString = typescript[start..<end]
-        let components = workingString.components(separatedBy: CharacterSet(charactersIn: "\n;"))
+        let workingString = String(typescript[start..<end])
+        let components = workingString.componentsWithoutPadding(separatedBy: CharacterSet(charactersIn: "\n;"))
+        
+        self.properties = try components
             .map {
-                $0.trimLeadingWhitespace().trimTrailingWhitespace()
+                var element = $0
+                var permission = Permission.readAndWrite
+                let readonly = TypeScript.Constants.readonly
+
+                if element.hasPrefix(readonly) {
+                    permission = .readonly
+                    element = element.suffix(fromInt: readonly.count)
+                        .trimLeadingWhitespace()
+                }
+                
+                let definition = try PropertyDefinition(typescript: element)
+                return (permission, definition)
             }
-            .filter { $0.isEmpty == false }
-        var arr: [(Permission, PropertyDefinition)] = []
-        for element in components {
-            if element.isEmpty { continue }
-
-            var element = element
-            element = element.trimLeadingWhitespace()
-                .trimTrailingWhitespace()
-
-            var permission = Permission.readAndWrite
-
-            let readonly = TypeScript.Constants.readonly
-
-            if element.hasPrefix(readonly) {
-                permission = .readonly
-                element = String(element.suffix(from: element.index(element.startIndex,
-                                                                    offsetBy: readonly.count)))
-                    .trimLeadingWhitespace()
-            }
-
-            let definition = try PropertyDefinition(typescript: element)
-
-            arr.append((permission, definition))
-        }
-        self.properties = arr
     }
 }

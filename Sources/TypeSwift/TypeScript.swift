@@ -11,10 +11,7 @@ public enum TypeScript: TypeScriptInitializable, SwiftStringConvertible {
 
     //case conformingModel(AccessLevel?, ModelDeclaration, String, String/*protocol conformation*/, ModelBody)
     case empty
-    case `typealias`(String, Type)
-    case function(Function)
-    case model(Model)
-    case interface(Interface)
+    case element(TypeScriptElement)
     indirect case module(String, TypeScript)
     indirect case namespace(String, TypeScript)
     indirect case composed(TypeScript, TypeScript)
@@ -23,14 +20,8 @@ public enum TypeScript: TypeScriptInitializable, SwiftStringConvertible {
         switch self {
         case .empty:
             return ""
-        case .`typealias`(let name, let type):
-            return "typealias \(name) = \(type.swiftValue)"
-        case .function(let function):
-            return function.swiftValue
-        case .interface(let interface):
-            return interface.swiftValue
-        case .model(let model):
-            return model.swiftValue
+        case .element(let element):
+            return element.swiftValue
         case .module(let name, let typeScript):
             return "struct \(name) {\n\(typeScript.swiftValue)\n}"
         case .namespace(let name, let typeScript):
@@ -43,106 +34,60 @@ public enum TypeScript: TypeScriptInitializable, SwiftStringConvertible {
     }
     
     public init(typescript: String) throws {
-        var working = typescript
+        let working = typescript
             .trimLeadingWhitespace()
             .trimTrailingWhitespace()
             .trimComments()
-
-        while let rangeOfImport = working.rangeOfImport() {
-            working = working.replacingCharacters(in: rangeOfImport, with: "")
-                .trimLeadingWhitespace()
-                .trimTrailingWhitespace()
-        }
-
-        while let rangeOfConstructor = working.rangeOfConstructor() {
-            working = working.replacingCharacters(in: rangeOfConstructor, with: "")
-                .trimTrailingWhitespace()
-                .trimLeadingWhitespace()
-        }
+            .trimImport()
+            .trimConstructor()
 
         var typescript1: TypeScript!
         var elementRange: Range<String.Index>!
 
-        if working.hasPrefix(.functionDeclaration) {
-            guard let start = working.rangeOfFunction()?.lowerBound,
-                let end = working.rangeOfBody()?.upperBound else {
-                throw TypeScriptError.invalidFunctionDeclaration
+        let bodyRange: Range<String.Index>? = working.rangeOfBody()
+        
+        if working.hasPrefix(.namespace) {
+            elementRange = bodyRange!
+            let body = String(working[elementRange])
+            guard let namespace = working.suffix(fromInt: working.namespaceDeclarationPrefix()!.count)
+                .getWord(atIndex: 0, seperation: .whitespaces) else {
+
+                throw TypeScriptError.cannotDeclareNamespaceWithoutBody
             }
-            elementRange = start..<end
-            typescript1 = .function(try Function(typescript: String(working[elementRange])))
-        } else if working.hasPrefix(.typeAlias) {
 
-            let typealiasKeyword = working.typealiasDeclarationPrefix()!
-
-            if let endIndex = working.index(of: "\n") ?? working.index(of: ";") {
-                elementRange = working.startIndex..<endIndex
+            if body.count <= "{ }".count {
+                typescript1 = .namespace(namespace, .empty)
             } else {
-                elementRange = working.startIndex..<working.endIndex
+                let inner = String(body[body.index(after: body.startIndex)..<body.index(before: body.endIndex)])
+                typescript1 = .namespace(namespace, try TypeScript(typescript: inner))
+            }
+        } else if working.hasPrefix(.module) {
+            elementRange = bodyRange!
+            let body = String(working[elementRange])
+            guard let module = String(working.suffix(from: working.index(working.startIndex,
+                                                                      offsetBy: working.moduleDeclarationPrefix()!.count)))
+                .getWord(atIndex: 0, seperation: .whitespaces) else {
+                throw TypeScriptError.cannotDeclareModuleWithoutBody
             }
 
-            let suffix = String(working.suffix(from: working.index(working.startIndex, offsetBy: typealiasKeyword.count)))
-            let components = suffix.components(separatedBy: "=")
-                .map {
-                    return $0.trimLeadingWhitespace()
-                        .trimTrailingWhitespace()
-                }
-            let nameRaw = components[0]
-            guard let typeRaw = components[1].trimLeadingWhitespace()
-                .getWord(atIndex: 0, seperation: CharacterSet(charactersIn: "\n;")) else {
-                throw TypeScriptError.invalidTypealias
+            if body.count <= "{ }".count {
+                typescript1 = .namespace(module, .empty)
+            } else {
+                let inner = String(body[body.index(after: body.startIndex)..<body.index(before: body.endIndex)])
+                typescript1 = .module(module, try TypeScript(typescript: inner))
             }
-            typescript1 = TypeScript.`typealias`(nameRaw, try Type(typescript: typeRaw))
-
-        } else if let bodyRange = working.rangeOfBody() {
-            elementRange = bodyRange
-            let raw = String(working[working.startIndex..<bodyRange.upperBound])
-            let body = String(working[bodyRange])
-
-            if working.hasPrefix(.interface) {
-
-                let interface = try Interface(typescript: raw)
-
-                typescript1 = .interface(interface)
-
-            } else if working.hasPrefix(.model) {
-                do {
-                    let model = try Model(typescript: raw)
-                    typescript1 = .model(model)
-                } catch {
-                    print(error.localizedDescription)
-                    print("")
-                }
-
-            } else if working.hasPrefix(.namespace) {
-                guard let namespace = String(working.suffix(from: working.index(working.startIndex,
-                                                                          offsetBy: working.namespaceDeclarationPrefix()!.count)))
-                    .getWord(atIndex: 0, seperation: .whitespaces) else {
-
-                    throw TypeScriptError.cannotDeclareNamespaceWithoutBody
-                }
-
-                if body.count <= "{ }".count {
-                    typescript1 = .namespace(namespace, .empty)
-                } else {
-                    let inner = String(body[body.index(after: body.startIndex)..<body.index(before: body.endIndex)])
-                    typescript1 = .namespace(namespace, try TypeScript(typescript: inner))
-                }
-            } else if working.hasPrefix(.module) {
-                guard let module = String(working.suffix(from: working.index(working.startIndex,
-                                                                          offsetBy: working.moduleDeclarationPrefix()!.count)))
-                    .getWord(atIndex: 0, seperation: .whitespaces) else {
-                    throw TypeScriptError.cannotDeclareModuleWithoutBody
-                }
-
-                if body.count <= "{ }".count {
-                    typescript1 = .namespace(module, .empty)
-                } else {
-                    let inner = String(body[body.index(after: body.startIndex)..<body.index(before: body.endIndex)])
-                    typescript1 = .module(module, try TypeScript(typescript: inner))
-                }
+        } else {
+            let element = try TypeScriptElement(typescript: working)
+            typescript1 = .element(element)
+            switch element {
+            case .function:
+                elementRange = working.rangeOfFunction()
+            case .interface,
+                 .model:
+                elementRange = working.rangeOfBody()
+            case .`typealias`:
+                elementRange = working.startIndex..<working.endOfExpressionIndex
             }
-        }  else {
-            throw TypeScriptError.unsupportedTypeScript(typescript)
         }
 
         var nextTypeScript = ""

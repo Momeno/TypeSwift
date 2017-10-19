@@ -59,9 +59,8 @@ public struct Interface: TypeScriptInitializable, SwiftStringConvertible {
             let end = tmp.range(of: "implements")?.lowerBound ?? tmp.index(of: "{")!
             let sfx = String(tmp.prefix(upTo: end))
 
-            self.extends = sfx.components(separatedBy: ",")
-                .map { $0.trimTrailingWhitespace().trimLeadingWhitespace() }
-                .filter { $0.isEmpty == false }
+            self.extends = sfx.componentsWithoutPadding(separatedBy: ",")
+
         } else { self.extends = nil }
 
         self.interfaceDec = interfaceDec

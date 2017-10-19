@@ -168,7 +168,61 @@ class StringHelperTests: XCTestCase {
         ]
         XCTAssert(str.extractGenericType()!.associates == exp && str.extractGenericType()!.name == "DistributedModel")
     }
+
+    func testTrimImport() {
+        let str = """
+        import { ZipCodeValidator } from "./ZipCodeValidator";
+        HELLO
+        import "./my-module.js";
+        HELLO!
+        import {
+            something,
+            other
+        } from "./mod";
+        WORLD
+        "import"
+        """
+        let exp = """
+        HELLO
+
+        HELLO!
+
+        WORLD
+        "import"
+        """
+        XCTAssert(str.trimImport() == exp)
+    }
+
+    func testTrimConstructor() {
+        let str = """
+        constructor(AnimalClass: class) {
+            this.AnimalClass = AnimalClass
+            let Hector = new AnimalClass();
+        }YEY
+        asdf
+        constructor() {
+            super();
+            console.log("Lion");
+        } HELLO
+        WORLD!
+        """
+        let exp = """
+        YEY
+        asdf
+         HELLO
+        WORLD!
+        """
+        XCTAssert(str.trimConstructor() == exp)
+    }
     
+    func testEndOfExpressionIndex() {
+        var str = "some expression; \n YEY"
+        XCTAssert(String(str.prefix(upTo: str.endOfExpressionIndex)) == "some expression")
+        
+        str = "some\n; expression"
+        XCTAssert(String(str.prefix(upTo: str.endOfExpressionIndex)) == "some")
+    }
+
     static var allTests = [
         ("testStringTrimHelpers", testStringTrimHelpers),
         ("testStringPrefixHelpers", testStringPrefixHelpers),
@@ -176,6 +230,8 @@ class StringHelperTests: XCTestCase {
         ("testStringTrimComments", testStringTrimComments),
         ("testStringBodyHelpers", testStringBodyHelpers),
         ("testImportRegex", testImportRegex),
-        ("testExtractAssociatedType", testExtractAssociatedType)
+        ("testExtractAssociatedType", testExtractAssociatedType),
+        ("testTrimImport", testTrimImport),
+        ("testTrimConstructor", testTrimConstructor)
     ]
 }
