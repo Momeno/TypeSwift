@@ -52,7 +52,7 @@ public struct Expression: SwiftStringConvertible, TypeScriptInitializable {
         }
 
         let newRegex = "\\s*new\\s+\\w+\\(.*\\)"
-        if let rangeOfVariable = str.range(of: newRegex, options: .regularExpression, range: nil, locale: nil),
+        if let _ = str.range(of: newRegex, options: .regularExpression, range: nil, locale: nil),
             let swapRange = str.range(of: "new") {
 
             str = str.replacingCharacters(in: swapRange, with: "")

@@ -17,4 +17,27 @@ public enum TypeScriptError: Swift.Error {
     case invalidDeclaration(String)
     case typeScriptEmpty
     case unsupportedTypeScript(String)
+
+    public var localizedDescription: String {
+        switch self {
+        case .cannotDeclareModelWithoutBody:
+            return "cannotDeclareModelWithoutBody"
+        case .cannotDeclareModuleWithoutBody:
+            return "cannotDeclareModuleWithoutBody"
+        case .cannotDeclareNamespaceWithoutBody:
+            return "cannotDeclareNamespaceWithoutBody"
+        case .cannotDeclareInterfaceWithoutBody:
+            return "cannotDeclareInterfaceWithoutBody"
+        case .invalidTypealias:
+            return "invalidTypealias"
+        case .invalidDeclaration(let str):
+            return "invalidDeclaration(\(str))"
+        case .unsupportedTypeScript(let str):
+            return "unsupportedTypeScript(\(str))"
+        case .typeScriptEmpty:
+            return "typeScriptEmpty"
+        case .invalidFunctionDeclaration:
+            return "invalidFunctionDeclaration"
+        }
+    }
 }

@@ -201,7 +201,7 @@ class TypeSwiftTests: XCTestCase {
     
     func testModel() {
         var raw = """
-        export class Foo implements Interface, SomeOther extends Another {
+        export class Foo extends Another implements Interface, SomeOther {
         public readonly x: number;
         private y: number;
         someFunc(): string {
@@ -211,7 +211,7 @@ class TypeSwiftTests: XCTestCase {
         """
         
         let exp = """
-        public struct Foo: Interface, SomeOther, Another {
+        public struct Foo: Another, Interface, SomeOther {
         public let x: NSNumber
         private var y: NSNumber
         init(_ x: NSNumber, _ y: NSNumber) {
@@ -222,7 +222,7 @@ class TypeSwiftTests: XCTestCase {
         self.x = x
         self.y = y
         }
-        func someFunc()-> String {
+        public func someFunc()-> String {
         return \"some string\"
         }
         }
@@ -265,7 +265,7 @@ class TypeSwiftTests: XCTestCase {
         }
         """)
 
-        let exp = "func getReference(dialogID: String, userID: UInt) -> String {\nreturn \"/path/to/\\(userID)/\\(dialogID)\"\n}"
+        let exp = "public func getReference(dialogID: String, userID: UInt) -> String {\nreturn \"/path/to/\\(userID)/\\(dialogID)\"\n}"
         XCTAssert(function.swiftValue == exp)
     }
     
@@ -313,7 +313,7 @@ class TypeSwiftTests: XCTestCase {
         var x: NSNumber { get }
         }
         }
-        func some(userID: String) -> String {
+        public func some(userID: String) -> String {
         return \"something/\\(userID)\"
         }
         }
@@ -502,7 +502,7 @@ class TypeSwiftTests: XCTestCase {
         let enumerator: FileManager.DirectoryEnumerator = fileManager.enumerator(atPath: url.path)!
 
         while let element = enumerator.nextObject() as? String {
-            if element.suffix(3) != ".ts" { continue }
+            if element.hasSuffix("References.ts") == false { continue }
             do {
                 let data = try Data(contentsOf: url.appendingPathComponent(element))
                 let str = String(data: data, encoding: .utf8)

@@ -37,6 +37,8 @@ public enum CodeBlock: TypeScriptInitializable, SwiftStringConvertible {
 
         let expressionEndingSet = CharacterSet(charactersIn: "\n;")
         let expressions = try innerString.components(separatedBy: expressionEndingSet)
+            .map { $0.trimLeadingWhitespace().trimTrailingWhitespace() }
+            .filter { $0.isEmpty == false }
             .flatMap(Expression.init(typescript:))
 
         self = .expressions(expressions)

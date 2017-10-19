@@ -31,6 +31,10 @@ public struct InterfaceBody: TypeScriptInitializable, SwiftStringConvertible {
 
         let workingString = typescript[start..<end]
         let components = workingString.components(separatedBy: CharacterSet(charactersIn: "\n;"))
+            .map {
+                $0.trimLeadingWhitespace().trimTrailingWhitespace()
+            }
+            .filter { $0.isEmpty == false }
         var arr: [(Permission, PropertyDefinition)] = []
         for element in components {
             if element.isEmpty { continue }
