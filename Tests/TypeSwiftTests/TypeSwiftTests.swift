@@ -300,7 +300,7 @@ class TypeSwiftTests: XCTestCase {
         }
         class FooBar {
         static some = \"some\"
-        static other = \"other\"
+        static other = new Comment("")
         }
         """
         
@@ -340,7 +340,7 @@ class TypeSwiftTests: XCTestCase {
         }
         struct FooBar {
         public static var some = \"some\"
-        public static var other = \"other\"
+        public static var other = Comment("")
 
         }
         """
@@ -498,13 +498,19 @@ class TypeSwiftTests: XCTestCase {
         let url = URL(fileURLWithPath: documentsPath).appendingPathComponent("models")
         let fileManager = FileManager.default
         let enumerator: FileManager.DirectoryEnumerator = fileManager.enumerator(atPath: url.path)!
-        while let element = enumerator.nextObject() as? String, element.suffix(3) == ".ts" {
+
+        while let element = enumerator.nextObject() as? String {
+            if element.suffix(3) != ".ts" { continue }
             do {
                 let data = try Data(contentsOf: url.appendingPathComponent(element))
                 let str = String(data: data, encoding: .utf8)
                 do {
                     let ts = try TypeScript(typescript: str!)
-                    XCTAssert(ts.swiftValue.isEmpty == false)
+                    let swift = ts.swiftValue
+                    XCTAssert(swift.isEmpty == false)
+                    try swift.write(to: url.appendingPathComponent(element.replacingOccurrences(of: ".ts", with: ".swift")),
+                                atomically: true,
+                                encoding: .utf8)
                 } catch {
                     print(error.localizedDescription)
                     print("")
