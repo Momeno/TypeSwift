@@ -201,7 +201,7 @@ class TypeSwiftTests: XCTestCase {
     
     func testModel() {
         var raw = """
-        export class Foo implements Interface, SomeOther {
+        export class Foo implements Interface, SomeOther extends Another {
         public readonly x: number;
         private y: number;
         someFunc(): string {
@@ -211,7 +211,7 @@ class TypeSwiftTests: XCTestCase {
         """
         
         let exp = """
-        public struct Foo: Interface, SomeOther {
+        public struct Foo: Interface, SomeOther, Another {
         public let x: NSNumber
         private var y: NSNumber
         init(_ x: NSNumber, _ y: NSNumber) {
@@ -495,7 +495,9 @@ class TypeSwiftTests: XCTestCase {
     func testBigTest() {
         let documentsPath = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0]
 
-        let url = URL(fileURLWithPath: documentsPath).appendingPathComponent("models")
+        let url = URL(fileURLWithPath: documentsPath)
+            .appendingPathComponent("models")
+            .appendingPathComponent("parsebleModels")
         let fileManager = FileManager.default
         let enumerator: FileManager.DirectoryEnumerator = fileManager.enumerator(atPath: url.path)!
 

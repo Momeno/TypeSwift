@@ -60,8 +60,10 @@ public struct Model: TypeScriptInitializable, SwiftStringConvertible {
         let brace = suffix.index(of: "{")!
         if let extends = suffix.prefix(upTo: brace)
             .range(of: "extends") {
+
             let tmp = String(suffix.suffix(from: extends.upperBound))
-            let sfx = String(tmp.prefix(upTo: tmp.index(of: "{")!))
+            let end = tmp.range(of: "implements")?.lowerBound ?? tmp.index(of: "{")!
+            let sfx = String(tmp.prefix(upTo: end))
 
             self.extends = sfx.components(separatedBy: ",")
                 .map { $0.trimTrailingWhitespace().trimLeadingWhitespace() }
