@@ -51,7 +51,9 @@ export class Foo implements Protocol {
 class Bar {
     protected property : Array<[boolean, string]>
     
-    constructor(property: [(Bool, String)])
+    constructor(property: [(Bool, String)]) {
+      this.property = property
+    }
 }
 ```
 
