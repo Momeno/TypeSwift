@@ -10,7 +10,7 @@ A set of tools for parsing TypeScript models into Swift ones
 - [X] Functions
   - Major limitations
     - Only literal values in expressions
-    - Variable declarations are limited to `var`
+    - Variable declarations are limited to `var`
     - type conversions are not currently supported in code blocks (such as function blocks)
 - [ ] Enums
 - [ ] Index Signatures
