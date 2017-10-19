@@ -1,13 +1,13 @@
 <img src="https://travis-ci.org/valdirunars/TypeSwift.svg?branch=master"/>
 
 # TypeSwift
-
 A set of tools for parsing TypeScript models into Swift ones
 
 ## Features
 
 - [X] Classes
 - [X] Interfaces
+- [ ] Functions
 - [ ] Enums
 - [ ] Index Signatures
 
@@ -39,9 +39,11 @@ interface Bar {
 }
 
 export class Foo {
-    public readonly x: number;
-    private y: number;
-} class Bar {
+    public x: number = 3;
+    private readonly y: number;
+}
+
+class Bar {
     protected property : Array<[boolean, string]>
 }
 ```
@@ -54,11 +56,28 @@ protocol Bar {
 }
 
 public struct Foo {
-    public let x: NSNumber
-    private var y: NSNumber
+    public var x: NSNumber = 1
+    private let y: NSNumber
+    
+    init(_ x: NSNumber, _ y: NSNumber) {
+      self.x = x
+      self.y = y
+    }
+    init(x: NSNumber, y: NSNumber) {
+      self.x = x
+      self.y = y
+    }
 }
 
 struct Bar {
     internal var property: [(Bool, String)]
+
+    init(_ property: [(Bool, String)]) {
+      self.property = property
+    }
+    
+    init(property: [(Bool, String)]) {
+      self.property = property
+    }
 }
 ```
