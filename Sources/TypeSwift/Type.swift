@@ -7,16 +7,16 @@
 
 import Foundation
 
-public indirect enum Type: TypeScriptInitializable, SwiftStringConvertible {
+public enum Type: TypeScriptInitializable, SwiftStringConvertible {
     case any
     case string
     case boolean
     case number
     case void
     case swiftNumber(SwiftNumber)
-    case array(Type)
-    case tuple(Type, Type)
-    case generic(String, [Type])
+    indirect case array(Type)
+    indirect case tuple(Type, Type)
+    indirect case generic(String, [Type])
     case custom(String)
 
     public init(typescript: String) throws {
