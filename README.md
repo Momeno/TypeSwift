@@ -46,7 +46,7 @@ interface Protocol {
 }
 
 export class Foo implements Protocol {
-    public readonly x: number = 3;
+    public x: number = 3;
     private readonly y: number;
     
     constructor(x: number, y: number) {
