@@ -502,7 +502,7 @@ class TypeSwiftTests: XCTestCase {
         let enumerator: FileManager.DirectoryEnumerator = fileManager.enumerator(atPath: url.path)!
 
         while let element = enumerator.nextObject() as? String {
-            if element.hasSuffix("References.ts") == false { continue }
+            if element.hasSuffix(".ts") == false { continue }
             do {
                 let data = try Data(contentsOf: url.appendingPathComponent(element))
                 let str = String(data: data, encoding: .utf8)

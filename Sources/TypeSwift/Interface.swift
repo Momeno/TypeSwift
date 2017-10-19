@@ -12,9 +12,16 @@ public struct Interface: TypeScriptInitializable, SwiftStringConvertible {
     let interfaceDec: InterfaceDeclaration
     let name: String
     let body: InterfaceBody
+    let extends: [String]?
 
     public var swiftValue: String {
-        return "\(interfaceDec.swiftValue) \(name) \(body.swiftValue)"
+        var extendsStr = ""
+        if let extends = self.extends {
+            extendsStr = ": " + extends.joined(separator: ", ")
+                .trimTrailingWhitespace()
+                .trimLeadingWhitespace()
+        }
+        return "\(interfaceDec.swiftValue) \(name)\(extendsStr) \(body.swiftValue)"
     }
 
     public init(typescript: String) throws {
@@ -43,6 +50,19 @@ public struct Interface: TypeScriptInitializable, SwiftStringConvertible {
             .getWord(atIndex: 0, seperation: .whitespaces) else {
                 throw TypeScriptError.invalidDeclaration(String(suffix.prefix(upTo: bodyRange.upperBound)))
         }
+
+        let brace = suffix.index(of: "{")!
+        if let extends = suffix.prefix(upTo: brace)
+            .range(of: "extends") {
+
+            let tmp = String(suffix.suffix(from: extends.upperBound))
+            let end = tmp.range(of: "implements")?.lowerBound ?? tmp.index(of: "{")!
+            let sfx = String(tmp.prefix(upTo: end))
+
+            self.extends = sfx.components(separatedBy: ",")
+                .map { $0.trimTrailingWhitespace().trimLeadingWhitespace() }
+                .filter { $0.isEmpty == false }
+        } else { self.extends = nil }
 
         self.interfaceDec = interfaceDec
         self.name = name
