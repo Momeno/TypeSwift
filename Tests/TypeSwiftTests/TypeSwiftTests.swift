@@ -201,7 +201,7 @@ class TypeSwiftTests: XCTestCase {
     
     func testModel() {
         var raw = """
-        export class Foo implements Interface {
+        export class Foo implements Interface, SomeOther {
         public readonly x: number;
         private y: number;
         someFunc(): string {
@@ -211,7 +211,7 @@ class TypeSwiftTests: XCTestCase {
         """
         
         let exp = """
-        public struct Foo: Interface {
+        public struct Foo: Interface, SomeOther {
         public let x: NSNumber
         private var y: NSNumber
         init(_ x: NSNumber, _ y: NSNumber) {

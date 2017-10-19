@@ -10,8 +10,8 @@ import Foundation
 public struct Model: TypeScriptInitializable, SwiftStringConvertible {
     let modelDec: ModelDeclaration
     let name: String
-    let extends: String?
-    let implements: String?
+    let extends: [String]?
+    let implements: [String]?
     let body: ModelBody
 
     public var swiftValue: String {
@@ -19,11 +19,11 @@ public struct Model: TypeScriptInitializable, SwiftStringConvertible {
         var extends = ""
         switch (self.extends, self.implements) {
         case (.some, .some):
-            extends = ": \(self.extends!), \(self.implements!)"
+            extends = ": \(self.extends!.joined(separator: ", ")), \(self.implements!.joined(separator: ", "))"
         case (.some, .none):
-            extends = ": \(self.extends!)"
+            extends = ": \(self.extends!.joined(separator: ", "))"
         case (.none, .some):
-            extends = ": \(self.implements!)"
+            extends = ": \(self.implements!.joined(separator: ", "))"
         case (.none, .none):
             break
         }
@@ -60,15 +60,22 @@ public struct Model: TypeScriptInitializable, SwiftStringConvertible {
         let brace = suffix.index(of: "{")!
         if let extends = suffix.prefix(upTo: brace)
             .range(of: "extends") {
-            let sfx = String(suffix.suffix(from: suffix.index(after: extends.upperBound)))
+            let tmp = String(suffix.suffix(from: extends.upperBound))
+            let sfx = String(tmp.prefix(upTo: tmp.index(of: "{")!))
 
-            self.extends = sfx.getWord(atIndex: 0, seperation: .whitespaces)
+            self.extends = sfx.components(separatedBy: ",")
+                .map { $0.trimTrailingWhitespace().trimLeadingWhitespace() }
+                .filter { $0.isEmpty == false }
         } else { self.extends = nil }
 
         if let implements = suffix.prefix(upTo: brace)
             .range(of: "implements") {
-            let sfx = String(suffix.suffix(from: suffix.index(after: implements.upperBound)))
-            self.implements = sfx.getWord(atIndex: 0, seperation: .whitespaces)
+            let tmp = String(suffix.suffix(from: implements.upperBound))
+            let sfx = String(tmp.prefix(upTo: tmp.index(of: "{")!))
+
+            self.implements = sfx.components(separatedBy: ",")
+                .map { $0.trimTrailingWhitespace().trimLeadingWhitespace() }
+                .filter { $0.isEmpty == false }
         } else { self.implements = nil }
 
         self.modelDec = modelDec
