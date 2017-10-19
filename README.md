@@ -56,7 +56,7 @@ protocol Protocol {
 }
 
 public struct Foo: Protocol {
-    public var x: NSNumber = 1
+    public var x: NSNumber = 3
     private let y: NSNumber
     
     init(_ x: NSNumber, _ y: NSNumber) {
