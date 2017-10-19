@@ -34,11 +34,11 @@ let string: String? = TypeSwift.sharedInstance.convertedString(from: typescript,
 This typescript string
 
 ```typescript
-interface Bar {
+interface Protocol {
     readonly x: number
 }
 
-export class Foo {
+export class Foo implements Protocol {
     public x: number = 3;
     private readonly y: number;
 }
@@ -51,11 +51,11 @@ class Bar {
 Would be converted to
 
 ```swift
-protocol Bar {
+protocol Protocol {
     var x: NSNumber { get }
 }
 
-public struct Foo {
+public struct Foo: Protocol {
     public var x: NSNumber = 1
     private let y: NSNumber
     
