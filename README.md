@@ -14,6 +14,7 @@ A set of tools for parsing TypeScript models into Swift ones
     - type conversions are not currently supported in code blocks (such as function blocks)
       - example1: ``let folder: string = `path/to/${folder}`; // CANNOT PARSE TypeScript``
       - example2: ``var folder = `path/to/${folder}`; // SWIFT: var folder = "path/to/\(folder)"``
+- [ ] Lambdas
 - [ ] Enums
 - [ ] Index Signatures
 
