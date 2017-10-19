@@ -56,6 +56,9 @@ class TypeSwiftTests: XCTestCase {
         
         type = try! Type(typescript: "CustomType")
         XCTAssert(type?.swiftValue == "CustomType")
+
+        type = try! Type(typescript: "Dictionary<UserID, DistributedModel<boolean>>")
+        XCTAssert(type?.swiftValue == "Dictionary<UserID, DistributedModel<Bool>>")
     }
     
     func testModelDeclaration() {
@@ -492,6 +495,21 @@ class TypeSwiftTests: XCTestCase {
         XCTAssert(str[str.rangeOfImport()!] == importStr)
     }
 
+    func testExtractAssociatedType() {
+        var str = "Dictionary<UserID, DistributedModel<PublicProfile>>"
+        var exp = [
+            "UserID",
+            "DistributedModel<PublicProfile>"
+        ]
+        XCTAssert(str.extractGenericType()!.associates == exp && str.extractGenericType()!.name == "Dictionary")
+
+        str = "DistributedModel<PublicProfile>"
+        exp = [
+            "PublicProfile"
+        ]
+        XCTAssert(str.extractGenericType()!.associates == exp && str.extractGenericType()!.name == "DistributedModel")
+    }
+
     func testBigTest() {
         let documentsPath = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0]
 
@@ -501,8 +519,8 @@ class TypeSwiftTests: XCTestCase {
         let fileManager = FileManager.default
         let enumerator: FileManager.DirectoryEnumerator = fileManager.enumerator(atPath: url.path)!
 
-        while let element = enumerator.nextObject() as? String {
-            if element.hasSuffix(".ts") == false { continue }
+        while let element = enumerator.nextObject() as? String, element.hasSuffix(".ts") {
+
             do {
                 let data = try Data(contentsOf: url.appendingPathComponent(element))
                 let str = String(data: data, encoding: .utf8)

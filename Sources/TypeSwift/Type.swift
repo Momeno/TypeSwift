@@ -13,10 +13,11 @@ public indirect enum Type: TypeScriptInitializable, SwiftStringConvertible {
     case boolean
     case number
     case void
-    case custom(String)
     case swiftNumber(SwiftNumber)
     case array(Type)
     case tuple(Type, Type)
+    case generic(String, [Type])
+    case custom(String)
 
     public init(typescript: String) throws {
         if typescript == TypeScript.Constants.string {
@@ -84,6 +85,8 @@ public indirect enum Type: TypeScriptInitializable, SwiftStringConvertible {
             let type2 = try Type(typescript: substring2)
 
             self = .tuple(type1, type2)
+        } else if let generic = typescript.extractGenericType() {
+            self = .generic(generic.name, try generic.associates.flatMap(Type.init(typescript:)))
         } else {
             self = .custom(typescript)
         }
@@ -109,6 +112,10 @@ public indirect enum Type: TypeScriptInitializable, SwiftStringConvertible {
             return "(\(type1.swiftValue), \(type2.swiftValue))"
         case .custom(let str):
             return str
+        case .generic(let name, let associatedTypes):
+            let associates = associatedTypes.map { $0.swiftValue }
+                .joined(separator: ", ")
+            return "\(name)<\(associates)>"
         }
     }
 }

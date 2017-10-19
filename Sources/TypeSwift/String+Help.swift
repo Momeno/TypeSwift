@@ -139,6 +139,34 @@ extension String {
                           locale: nil)
     }
 
+    func extractGenericType() -> (name: String, associates: [String])? {
+        let regex = "\\<(.+\\,)*.+\\s*\\>"
+        guard let range = self.range(of: regex,
+                                     options: .regularExpression,
+                                     range: nil,
+                                     locale: nil),
+            self[range].count > 2 else {
+
+            return nil
+        }
+
+        let innerTypeRange = self.index(after: range.lowerBound)..<self.index(before: range.upperBound)
+
+        let trimmed = self.trimLeadingWhitespace()
+
+        let name = String(trimmed.prefix(upTo: self.index(of: "<")!))
+        let associated = String(self[innerTypeRange]).components(separatedBy: ",")
+            .map {
+                $0.trimTrailingWhitespace().trimLeadingWhitespace()
+            }
+            .filter {
+                $0.isEmpty == false
+            }
+
+        return (name, associated)
+
+    }
+
     func rangeOfImport() -> Range<String.Index>? {
         let regex = "((import\\s+(\\w+|(\\{(\\w|\\n|\\s|\\,)*\\s*\\}))\\s*from\\s+(\\'.*\\'|\\\".*\\\"|`.*`))|import\\s+.*)"
 
