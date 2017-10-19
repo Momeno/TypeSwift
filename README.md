@@ -42,11 +42,11 @@ This typescript string
 
 ```typescript
 interface Protocol {
-    readonly x: number
+    readonly y: number
 }
 
 export class Foo implements Protocol {
-    public x: number = 3;
+    public readonly x: number = 3;
     private readonly y: number;
     
     constructor(x: number, y: number) {
@@ -68,7 +68,7 @@ Would be converted to
 
 ```swift
 protocol Protocol {
-    var x: NSNumber { get }
+    var y: NSNumber { get }
 }
 
 public struct Foo: Protocol {
