@@ -56,7 +56,7 @@ extension String {
     }
     
     func rangeOfFunction() -> Range<String.Index>? {
-        guard let declarationRange = self.range(of: "((public\\s+|private\\s+|protected\\s+)?(static\\s+)?\\s*)(function\\s)?\\s*\\w*\\(.*\\)\\s*\\:\\s*\\w+",
+        guard let declarationRange = self.range(of: "((public\\s+|private\\s+|protected\\s+)?(static\\s+)?\\s*)(function\\s)?\\s*\\w*\\(.*\\)(\\s*\\:\\s*\\w+)?",
                                                 options: .regularExpression,
                                                 range: nil,
                                                 locale: nil) else {
