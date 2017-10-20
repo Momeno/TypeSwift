@@ -23,9 +23,9 @@ public enum TypeScript: TypeScriptInitializable, SwiftStringConvertible {
         case .element(let element):
             return element.swiftValue
         case .module(let name, let typeScript):
-            return "struct \(name) {\n\(typeScript.swiftValue)\n}"
+            return "enum \(name) {\n\(typeScript.swiftValue)\n}"
         case .namespace(let name, let typeScript):
-            return "struct \(name) {\n\(typeScript.swiftValue)\n}"
+            return "enum \(name) {\n\(typeScript.swiftValue)\n}"
         case .composed(let type1, let type2):
             return "\(type1.swiftValue)\n\(type2.swiftValue)"
                 .trimTrailingCharacters(in: .newlines)
