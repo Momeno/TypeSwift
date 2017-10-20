@@ -33,13 +33,17 @@ public struct ModelBody: TypeScriptInitializable, SwiftStringConvertible {
 
     public init(typescript: String) throws {
         guard let index = typescript.index(of: "{") else {
-            throw TypeScriptError.cannotDeclareModelWithoutBody
+            let err = TypeScriptError.cannotDeclareModelWithoutBody
+            err.log()
+            throw err
         }
 
         let start = typescript.index(after: index)
         
         guard let end = typescript.rangeOfCharacter(from: CharacterSet(charactersIn:"}"), options: .backwards, range: nil)?.lowerBound else {
-            throw TypeScriptError.cannotDeclareModelWithoutBody
+            let err = TypeScriptError.cannotDeclareModelWithoutBody
+            err.log()
+            throw err
         }
         
         var workingString = String(typescript[start..<end])
@@ -75,7 +79,9 @@ public struct ModelBody: TypeScriptInitializable, SwiftStringConvertible {
                 .filter { $0.isEmpty == false }
 
             guard let name = nameDeclaration.last else {
-                throw TypeScriptError.invalidDeclaration(element)
+                let err = TypeScriptError.invalidDeclaration(element)
+                err.log()
+                throw err
             }
 
             for element in nameDeclaration {

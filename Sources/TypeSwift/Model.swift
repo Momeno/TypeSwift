@@ -37,31 +37,40 @@ public struct Model: TypeScriptInitializable, SwiftStringConvertible {
             .trimTrailingCharacters(in: .whitespacesAndNewlines)
 
         guard let bodyRange = working.rangeOfBody() else {
-            throw TypeScriptError.cannotDeclareModelWithoutBody
+            let err = TypeScriptError.cannotDeclareModelWithoutBody
+            err.log()
+            throw err
         }
 
         let body = try ModelBody(typescript: String(working[bodyRange]))
 
         guard let modelDec = working.modelDeclarationPrefix() else {
-            throw TypeScriptError.invalidDeclaration(String(working.prefix(upTo: bodyRange.upperBound)))
+            let err = TypeScriptError.invalidDeclaration(String(working.prefix(upTo: bodyRange.upperBound)))
+            err.log()
+            throw err
         }
         
         let offsetedIndex = working.index(working.startIndex, offsetBy: modelDec.rawValue.count)
         let suffix = String(working.suffix(from: offsetedIndex))
         guard let indexOfSpace = suffix.index(of: " ") else {
-           throw TypeScriptError.invalidDeclaration(String(typescript.prefix(upTo: bodyRange.upperBound)))
+           let err = TypeScriptError.invalidDeclaration(String(typescript.prefix(upTo: bodyRange.upperBound)))
+            err.log()
+            throw err
         }
         
-        guard let name = String(suffix.suffix(from: indexOfSpace))
+        guard let name = suffix.suffix(fromIndex: indexOfSpace)
             .getWord(atIndex: 0, seperation: .whitespaces) else {
-            throw TypeScriptError.invalidDeclaration(String(typescript.prefix(upTo: bodyRange.upperBound)))
+
+            let err = TypeScriptError.invalidDeclaration(String(typescript.prefix(upTo: bodyRange.upperBound)))
+            err.log()
+            throw err
         }
 
         let brace = suffix.index(of: "{")!
         if let extends = suffix.prefix(upTo: brace)
             .range(of: "extends") {
 
-            let tmp = String(suffix.suffix(from: extends.upperBound))
+            let tmp = suffix.suffix(fromIndex: extends.upperBound)
             let end = tmp.range(of: "implements")?.lowerBound ?? tmp.index(of: "{")!
             let sfx = String(tmp.prefix(upTo: end))
 
@@ -71,7 +80,7 @@ public struct Model: TypeScriptInitializable, SwiftStringConvertible {
 
         if let implements = suffix.prefix(upTo: brace)
             .range(of: "implements") {
-            let tmp = String(suffix.suffix(from: implements.upperBound))
+            let tmp = suffix.suffix(fromIndex: implements.upperBound)
             let sfx = String(tmp.prefix(upTo: tmp.index(of: "{")!))
 
             self.implements = sfx.componentsWithoutPadding(separatedBy: ",")

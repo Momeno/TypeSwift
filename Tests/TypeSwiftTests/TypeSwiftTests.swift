@@ -356,10 +356,10 @@ class TypeSwiftTests: XCTestCase {
             .appendingPathComponent("models")
             .appendingPathComponent("parsebleModels")
         let fileManager = FileManager.default
-        guard let enumerator: FileManager.DirectoryEnumerator = fileManager.enumerator(atPath: url.path) else { return }
+        let enumerator: FileManager.DirectoryEnumerator = fileManager.enumerator(atPath: url.path)!
 
-        while let element = enumerator.nextObject() as? String, element.hasSuffix(".ts") {
-
+        while let element = enumerator.nextObject() as? String {
+            guard element.hasSuffix(".ts") else { continue }
             do {
                 let data = try Data(contentsOf: url.appendingPathComponent(element))
                 let str = String(data: data, encoding: .utf8)

@@ -30,25 +30,33 @@ public struct Interface: TypeScriptInitializable, SwiftStringConvertible {
             .trimTrailingCharacters(in: .whitespacesAndNewlines)
 
         guard let bodyRange = working.rangeOfBody() else {
-            throw TypeScriptError.cannotDeclareInterfaceWithoutBody
+            let err = TypeScriptError.cannotDeclareInterfaceWithoutBody
+            err.log()
+            throw err
         }
 
         let body = try InterfaceBody(typescript: String(working[bodyRange]))
 
         guard let interfaceDec = working.interfaceDeclarationPrefix() else {
-            throw TypeScriptError.invalidDeclaration(String(working.prefix(upTo: bodyRange.upperBound)))
+            let err = TypeScriptError.invalidDeclaration(String(working.prefix(upTo: bodyRange.upperBound)))
+            err.log()
+            throw err
         }
 
         let offsetedIndex = working.index(working.startIndex, offsetBy: interfaceDec.rawValue.count)
         let suffix = String(working.suffix(from: offsetedIndex))
 
         guard let indexOfSpace = suffix.index(of: " ") else {
-            throw TypeScriptError.invalidDeclaration(String(suffix.prefix(upTo: bodyRange.upperBound)))
+            let err = TypeScriptError.invalidDeclaration(String(suffix.prefix(upTo: bodyRange.upperBound)))
+            err.log()
+            throw err
         }
 
         guard let name = String(suffix.suffix(from: indexOfSpace))
             .getWord(atIndex: 0, seperation: .whitespaces) else {
-                throw TypeScriptError.invalidDeclaration(String(suffix.prefix(upTo: bodyRange.upperBound)))
+                let err = TypeScriptError.invalidDeclaration(String(suffix.prefix(upTo: bodyRange.upperBound)))
+                err.log()
+                throw err
         }
 
         let brace = suffix.index(of: "{")!

@@ -63,7 +63,10 @@ public struct FunctionDeclaration: SwiftStringConvertible, TypeScriptInitializab
                                             options: .regularExpression,
                                             range: nil,
                                             locale: nil) else {
-            throw TypeScriptError.invalidFunctionDeclaration
+
+            let err = TypeScriptError.invalidFunctionDeclaration
+            err.log()
+            throw err
         }
 
         let start = typescript.index(after: range.lowerBound)

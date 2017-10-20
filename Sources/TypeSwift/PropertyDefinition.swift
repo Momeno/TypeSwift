@@ -22,7 +22,9 @@ public enum PropertyDefinition: TypeScriptInitializable, SwiftStringConvertible 
 
     public init(typescript: String) throws {
         guard let first = typescript.first else {
-            throw TypeScriptError.invalidDeclaration(typescript)
+            let err = TypeScriptError.invalidDeclaration(typescript)
+            err.log()
+            throw err
         }
 
         guard first != "[" else {
@@ -67,7 +69,9 @@ public enum PropertyDefinition: TypeScriptInitializable, SwiftStringConvertible 
         }
 
         guard (definesValue || definesType) || (name.index(of: " ") == nil) else {
-            throw TypeScriptError.invalidDeclaration(typescript)
+            let err = TypeScriptError.invalidDeclaration(typescript)
+            err.log()
+            throw err
         }
 
         let type: Type? = definesType ? try Type(typescript: typeRaw!) : nil

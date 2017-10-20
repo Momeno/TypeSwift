@@ -36,7 +36,9 @@ public enum TypeScriptElement: TypeScriptInitializable, SwiftStringConvertible {
 
         if working.hasPrefix(.functionDeclaration) {
             guard let functionRange = working.rangeOfFunction() else {
-                throw TypeScriptError.invalidFunctionDeclaration
+                let err = TypeScriptError.invalidFunctionDeclaration
+                err.log()
+                throw err
             }
             self = .function(try Function(typescript: String(working[functionRange])))
         } else if working.hasPrefix(.typeAlias) {
@@ -50,7 +52,9 @@ public enum TypeScriptElement: TypeScriptInitializable, SwiftStringConvertible {
             let nameRaw = components[0]
             guard let typeRaw = components[1].trimLeadingWhitespace()
                 .getWord(atIndex: 0, seperation: CharacterSet(charactersIn: "\n;")) else {
-                    throw TypeScriptError.invalidTypealias
+                    let err = TypeScriptError.invalidTypealias
+                    err.log()
+                    throw err
             }
             self = .`typealias`(nameRaw, try Type(typescript: typeRaw))
             
@@ -67,10 +71,14 @@ public enum TypeScriptElement: TypeScriptInitializable, SwiftStringConvertible {
                 let model = try Model(typescript: raw)
                 self = .model(model)
             } else {
-                throw TypeScriptError.unsupportedTypeScript(typescript)
+                let err = TypeScriptError.unsupportedTypeScript(typescript)
+                err.log()
+                throw err
             }
         } else {
-            throw TypeScriptError.unsupportedTypeScript(typescript)
+            let err = TypeScriptError.unsupportedTypeScript(typescript)
+            err.log()
+            throw err
         }
     }
 }

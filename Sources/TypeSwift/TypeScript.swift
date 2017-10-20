@@ -52,7 +52,9 @@ public enum TypeScript: TypeScriptInitializable, SwiftStringConvertible {
             guard let namespace = working.suffix(fromInt: working.namespaceDeclarationPrefix()!.count)
                 .getWord(atIndex: 0, seperation: .whitespaces) else {
 
-                throw TypeScriptError.cannotDeclareNamespaceWithoutBody
+                let err = TypeScriptError.cannotDeclareNamespaceWithoutBody
+                err.log()
+                throw err
             }
 
             if body.count <= "{ }".count {
@@ -67,7 +69,9 @@ public enum TypeScript: TypeScriptInitializable, SwiftStringConvertible {
             guard let module = String(working.suffix(from: working.index(working.startIndex,
                                                                       offsetBy: working.moduleDeclarationPrefix()!.count)))
                 .getWord(atIndex: 0, seperation: .whitespaces) else {
-                throw TypeScriptError.cannotDeclareModuleWithoutBody
+                let err = TypeScriptError.cannotDeclareModuleWithoutBody
+                err.log()
+                throw err
             }
 
             if body.count <= "{ }".count {

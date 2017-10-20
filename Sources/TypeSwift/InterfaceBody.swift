@@ -20,7 +20,9 @@ public struct InterfaceBody: TypeScriptInitializable, SwiftStringConvertible {
 
     public init(typescript: String) throws {
         guard let body = typescript.rangeOfBody() else {
-            throw TypeScriptError.cannotDeclareInterfaceWithoutBody
+            let err = TypeScriptError.cannotDeclareInterfaceWithoutBody
+            err.log()
+            throw err
         }
 
         let start = typescript.index(after: body.lowerBound)

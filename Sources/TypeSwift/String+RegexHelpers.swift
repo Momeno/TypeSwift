@@ -59,12 +59,18 @@ extension String {
         guard let declarationRange = self.range(of: "((public\\s+|private\\s+|protected\\s+)?(static\\s+)?\\s*)(function\\s)?\\s*\\w*\\(.*\\)\\s*\\:\\s*\\w+",
                                                 options: .regularExpression,
                                                 range: nil,
-                                                locale: nil),
-            let body = self.rangeOfBody() else {
+                                                locale: nil) else {
             return nil
         }
-        
-        return declarationRange.lowerBound..<body.upperBound
+
+        let suffix = self.suffix(fromIndex: declarationRange.lowerBound)
+        guard let body = suffix.rangeOfBody() else {
+            return nil
+        }
+
+        let prefix = String(suffix.prefix(upTo: body.upperBound))
+
+        return self.range(of: prefix)
     }
     
     func rangeOfBody() -> Range<String.Index>? {

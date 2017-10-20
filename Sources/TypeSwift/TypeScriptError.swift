@@ -18,6 +18,10 @@ public enum TypeScriptError: Swift.Error {
     case typeScriptEmpty
     case unsupportedTypeScript(String)
 
+    func log(_ file: StaticString = #file, _ line: UInt = #line) {
+        print("TypeScriptError: FILE: \(file) - LINE: \(line) - \(self.localizedDescription)")
+    }
+
     public var localizedDescription: String {
         switch self {
         case .cannotDeclareModelWithoutBody:

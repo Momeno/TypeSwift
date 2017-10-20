@@ -56,7 +56,9 @@ public enum Function: TypeScriptInitializable, SwiftStringConvertible {
         }
 
         guard let body = working.rangeOfBody() else {
-            throw TypeScriptError.invalidDeclaration(typescript)
+            let err = TypeScriptError.invalidDeclaration(typescript)
+            err.log()
+            throw err
         }
 
         let constructorRegex = "constructor\\s*\\("

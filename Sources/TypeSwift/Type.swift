@@ -32,20 +32,24 @@ public enum Type: TypeScriptInitializable, SwiftStringConvertible {
             self = .any
         } else if typescript.hasPrefix(TypeScript.Constants.number) {
             guard typescript.count > 8 else {
-                throw TypeScriptError.invalidDeclaration(typescript)
+                let err = TypeScriptError.invalidDeclaration(typescript)
+                err.log()
+                throw err
             }
 
             let index = typescript.index(typescript.startIndex, offsetBy: 8)
             let suffix = String(typescript.suffix(from: index))
             let swiftNumRaw = String(suffix.prefix(suffix.count - 2))
             guard let swiftNum = SwiftNumber(rawValue: swiftNumRaw) else {
-                throw TypeScriptError.invalidDeclaration(swiftNumRaw)
+                let err = TypeScriptError.invalidDeclaration(swiftNumRaw)
+                err.log()
+                throw err
             }
             self = .swiftNumber(swiftNum)
         } else if typescript.hasPrefix("Array<") && typescript.hasSuffix(">") {
             let idx = typescript.index(of: "<")!
             let start = typescript.index(after: idx)
-            let end = typescript.index(typescript.startIndex, offsetBy: typescript.count - 1)
+            let end = typescript.index(atInt: typescript.count - 1)
 
             let rawType = String(typescript[start..<end])
             let type = try Type(typescript: rawType)
@@ -72,7 +76,9 @@ public enum Type: TypeScriptInitializable, SwiftStringConvertible {
             }
 
             guard let indexOfComma = index else {
-                throw TypeScriptError.invalidDeclaration(typescript)
+                let err = TypeScriptError.invalidDeclaration(typescript)
+                err.log()
+                throw err
             }
 
             let spaceIndex = typescript.index(after: indexOfComma)
