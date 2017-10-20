@@ -105,10 +105,12 @@ public struct ModelBody: TypeScriptInitializable, SwiftStringConvertible {
                 var variableName: String
                 var swiftType: String
                 switch def {
-                case .definite(let name, let type, _),
-                     .optional(let name, let type):
+                case .definite(let name, let type, _):
                     variableName = name
                     swiftType = type?.swiftValue ?? "Any"
+                case .optional(let name, let type):
+                    variableName = name
+                    swiftType = "\(type?.swiftValue ?? "Any")?"
                 }
                 if tuple.scope.isStatic == false {
                     if hasLabels {

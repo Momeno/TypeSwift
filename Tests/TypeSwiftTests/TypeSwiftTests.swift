@@ -150,19 +150,19 @@ class TypeSwiftTests: XCTestCase {
           class Some {
         protected readonly people: Array<[number, Person]>
         private static street: number/*UInt*/
-        public number: number
+        public number?: number
         }
         """
         let exp = """
         {
         internal let people: [(NSNumber, Person)]
         private static var street: UInt
-        public var number: NSNumber
-        init(_ people: [(NSNumber, Person)], _ number: NSNumber) {
+        public var number: NSNumber?
+        init(_ people: [(NSNumber, Person)], _ number: NSNumber?) {
         self.people = people
         self.number = number
         }
-        public init(people: [(NSNumber, Person)], number: NSNumber) {
+        public init(people: [(NSNumber, Person)], number: NSNumber?) {
         self.people = people
         self.number = number
         }
@@ -171,7 +171,7 @@ class TypeSwiftTests: XCTestCase {
         var body = try! ModelBody(typescript: raw)
         XCTAssert(body.swiftValue == exp)
         
-        raw = "{protected readonly people :Array<[number, Person]>;private static street: number/*UInt*/;public number: NSNumber}"
+        raw = "{protected readonly people :Array<[number, Person]>;private static street: number/*UInt*/;public number: NSNumber?}"
         body = try! ModelBody(typescript: raw)
         XCTAssert(body.swiftValue == exp)
     }

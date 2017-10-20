@@ -14,9 +14,9 @@ public enum PropertyDefinition: TypeScriptInitializable, SwiftStringConvertible 
     public var swiftValue: String {
         switch self {
         case .definite(let name, let type, let assignment):
-            return "\(name)\(type?.swiftValue != nil ? ": \(type!.swiftValue)" : "")\(assignment != nil ? " = \(assignment!.swiftValue)" : "")"
+            return "\(name)\(type?.swiftValue != nil ? ": \(type?.swiftValue ?? "Any")" : "")\(assignment != nil ? " = \(assignment!.swiftValue)" : "")"
         case .optional(let name, let type):
-            return "\(name)\(type?.swiftValue != nil ? ": \(type!.swiftValue)" : "")?"
+            return "\(name)\(type?.swiftValue != nil ? ": \(type?.swiftValue ?? "Any")" : "")?"
         }
     }
 
