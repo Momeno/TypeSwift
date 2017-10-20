@@ -10,6 +10,7 @@ import Foundation
 public enum VariableType: String, SwiftStringConvertible {
     case `let`
     case const
+    case `var`
     
     public var swiftValue: String {
         switch self {
@@ -17,6 +18,8 @@ public enum VariableType: String, SwiftStringConvertible {
             return "var"
         case .const:
             return "let"
+        case .`var`:
+            return "var"
         }
     }
 }
