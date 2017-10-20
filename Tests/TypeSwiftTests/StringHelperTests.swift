@@ -223,6 +223,35 @@ class StringHelperTests: XCTestCase {
         XCTAssert(String(str.prefix(upTo: str.endOfExpressionIndex)) == "some")
     }
 
+    func testSwapExcept() {
+        var str = """
+        something "something "
+        ` some
+        something  `gsomethingaaaaa
+        """
+        var exp = """
+         "something "
+        ` some
+        something  `gaaaaa
+        """
+        let value = str.swapInstances(of: "something", with: "", exceptInside: .quoteRegex)
+        XCTAssert(value == exp)
+
+        str = """
+        someFunc(some: string): string {
+        let str = ":"
+        }
+        """
+
+        exp = """
+        someFunc(some: string)-> string {
+        let str = ":"
+        }
+        """
+
+        XCTAssert(str.swapInstances(of: ":", with: "->", exceptInside: "\\([^\\)]*\\)|\(String.quoteRegex)") == exp)
+    }
+
     static var allTests = [
         ("testStringTrimHelpers", testStringTrimHelpers),
         ("testStringPrefixHelpers", testStringPrefixHelpers),
@@ -232,6 +261,7 @@ class StringHelperTests: XCTestCase {
         ("testImportRegex", testImportRegex),
         ("testExtractAssociatedType", testExtractAssociatedType),
         ("testTrimImport", testTrimImport),
-        ("testTrimConstructor", testTrimConstructor)
+        ("testTrimConstructor", testTrimConstructor),
+        ("testSwapExcept", testSwapExcept)
     ]
 }

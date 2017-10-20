@@ -40,14 +40,16 @@ public struct FunctionDeclaration: SwiftStringConvertible, TypeScriptInitializab
         }
 
         let colon = ":"
-        if let rangeOfColon = str.range(of: colon, options: .backwards,
-                                        range: nil,
-                                        locale: nil) {
-            str = str.replacingCharacters(in: rangeOfColon, with: "->")
+        let returnIndicator = "->"
 
-            let returnType = String(str.suffix(from: str.range(of: "->", options: .backwards, range: nil, locale: nil)!.upperBound))
+        // swap colon with returnIndicator except inside brackets or quotes
+        str = str.swapInstances(of: colon, with: returnIndicator, exceptInside: "\\([^\\)]*\\)|(\(String.quoteRegex))")
+
+        if let rangeOfReturnIndicator = str.range(of: returnIndicator, options: .backwards, range: nil, locale: nil) {
+            let returnType = str.suffix(fromIndex: rangeOfReturnIndicator.upperBound)
                 .trimLeadingWhitespace()
                 .trimTrailingWhitespace()
+
             if let returnTypeRange = str.range(of: returnType, options: .backwards, range: nil, locale: nil) {
                 let typeString = (try? Type(typescript: returnType))?.swiftValue ?? returnType
                 str = str.replacingCharacters(in: returnTypeRange, with: typeString)

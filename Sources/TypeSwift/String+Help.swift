@@ -19,8 +19,23 @@ enum PrefixType {
     case functionDeclaration
 }
 
+extension Array where Element : Equatable {
+    var unique: [Element] {
+        var uniqueValues: [Element] = []
+        forEach { item in
+            if !uniqueValues.contains(item) {
+                uniqueValues += [item]
+            }
+        }
+        return uniqueValues
+    }
+}
+
 extension String {
-    
+    static var quoteRegex: String {
+        return "(\"[^\"]*\")|('[^']*')|(`([^`]|\\n)*`)"
+    }
+
     var endOfExpressionIndex: String.Index {
         let indexOfNewLine = self.index(of: "\n")
         let indexOfSemiComma = self.index(of: ";")
@@ -39,6 +54,53 @@ extension String {
     
     var isTypeScriptFormatString: Bool {
         return self.rangeOfTypeScriptFormatString() == self.startIndex..<self.endIndex
+    }
+
+    func swapInstances(of string: String, with string2: String, exceptInside regex: String) -> String {
+        var workingRange = self.startIndex..<self.endIndex
+
+        var tmp = ""
+        var lastRange: Range<String.Index>?
+
+        while let range = self.range(of: string, options: .literal, range: workingRange, locale: nil) {
+
+            var innerWorking = self.startIndex..<self.endIndex
+            var overlaps = false
+            while let reg = self.range(of: regex, options: .regularExpression, range: innerWorking, locale: nil) {
+                if range.overlaps(reg) {
+                    overlaps = true
+                    break
+                }
+
+                if reg.upperBound == innerWorking.upperBound {
+                    break
+                } else {
+                    innerWorking = reg.upperBound..<innerWorking.upperBound
+                }
+            }
+
+            if overlaps == false {
+                if let last = lastRange {
+                    tmp += String(self[last.upperBound..<range.lowerBound])
+                } else {
+                    tmp += String(self.prefix(upTo: range.lowerBound))
+                }
+                tmp += string2
+                lastRange = range
+            }
+
+            if range.upperBound == workingRange.upperBound {
+                break
+            } else {
+                workingRange = range.upperBound..<workingRange.upperBound
+            }
+        }
+
+        if let last = lastRange {
+            return tmp + self.suffix(fromIndex: last.upperBound)
+        } else {
+            return self
+        }
     }
     
     func componentsWithoutPadding(separatedBy string: String) -> [String] {
