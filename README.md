@@ -48,7 +48,7 @@ interface Protocol {
 export class Foo implements Protocol {
     public x: number = 3;
     private readonly y: number;
-    
+
     constructor(x: number, y: number) {
       this.x = x
       this.y = y
@@ -57,7 +57,7 @@ export class Foo implements Protocol {
 
 class Bar {
     protected property : Array<[boolean, string]>
-    
+
     constructor(property: [(Bool, String)]) {
       this.property = property
     }
@@ -68,18 +68,18 @@ Would be converted to
 
 ```swift
 protocol Protocol {
-    var y: NSNumber { get }
+    var y: Double { get }
 }
 
 public struct Foo: Protocol {
-    public var x: NSNumber = 3
-    private let y: NSNumber
-    
-    init(_ x: NSNumber, _ y: NSNumber) {
+    public var x: Double = 3
+    private let y: Double
+
+    init(_ x: Double, _ y: Double) {
       self.x = x
       self.y = y
     }
-    init(x: NSNumber, y: NSNumber) {
+    init(x: Double, y: Double) {
       self.x = x
       self.y = y
     }
@@ -91,7 +91,7 @@ struct Bar {
     init(_ property: [(Bool, String)]) {
       self.property = property
     }
-    
+
     init(property: [(Bool, String)]) {
       self.property = property
     }

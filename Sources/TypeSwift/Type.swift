@@ -107,7 +107,7 @@ public enum Type: TypeScriptInitializable, SwiftStringConvertible {
         case .string:
             return "String"
         case .number:
-            return "NSNumber"
+            return "Double"
         case .void:
             return "Void"
         case .swiftNumber(let swiftNum):

@@ -32,7 +32,7 @@ class TypeSwiftTests: XCTestCase {
         XCTAssert(type?.swiftValue == "Bool")
 
         type = try! Type(typescript: "number")
-        XCTAssert(type?.swiftValue == "NSNumber")
+        XCTAssert(type?.swiftValue == "Double")
         
         type = try! Type(typescript: "number/*Float*/")
         XCTAssert(type?.swiftValue == "Float")
@@ -93,9 +93,9 @@ class TypeSwiftTests: XCTestCase {
         body = try! InterfaceBody(typescript: raw)
         expected = """
         {
-        var people: [(NSNumber, Person)] { get set }
+        var people: [(Double, Person)] { get set }
         var street: UInt? { get }
-        var number: NSNumber { get set }
+        var number: Double { get set }
         }
         """
         
@@ -128,7 +128,7 @@ class TypeSwiftTests: XCTestCase {
         XCTAssert(property?.swiftValue == "string: String")
 
         property = try! PropertyDefinition(typescript: "name:[string, number]")
-        XCTAssert(property?.swiftValue == "name: (String, NSNumber)")
+        XCTAssert(property?.swiftValue == "name: (String, Double)")
         
         property = try! PropertyDefinition(typescript: "optional?: [boolean, Array<number/*Int*/>]")
         XCTAssert(property?.swiftValue == "optional: (Bool, [Int])?")
@@ -155,14 +155,14 @@ class TypeSwiftTests: XCTestCase {
         """
         let exp = """
         {
-        internal let people: [(NSNumber, Person)]
+        internal let people: [(Double, Person)]
         private static var street: UInt
-        public var number: NSNumber?
-        init(_ people: [(NSNumber, Person)], _ number: NSNumber?) {
+        public var number: Double?
+        init(_ people: [(Double, Person)], _ number: Double?) {
         self.people = people
         self.number = number
         }
-        public init(people: [(NSNumber, Person)], number: NSNumber?) {
+        public init(people: [(Double, Person)], number: Double?) {
         self.people = people
         self.number = number
         }
@@ -171,7 +171,7 @@ class TypeSwiftTests: XCTestCase {
         var body = try! ModelBody(typescript: raw)
         XCTAssert(body.swiftValue == exp)
         
-        raw = "{protected readonly people :Array<[number, Person]>;private static street: number/*UInt*/;public number: NSNumber?}"
+        raw = "{protected readonly people :Array<[number, Person]>;private static street: number/*UInt*/;public number: Double?}"
         body = try! ModelBody(typescript: raw)
         XCTAssert(body.swiftValue == exp)
     }
@@ -185,7 +185,7 @@ class TypeSwiftTests: XCTestCase {
         
         let exp = """
         protocol Bar {
-        var x: NSNumber { get }
+        var x: Double { get }
         }
         """
         var interface: Interface? = try! Interface(typescript: raw)
@@ -213,13 +213,13 @@ class TypeSwiftTests: XCTestCase {
         
         let exp = """
         public struct Foo: Another, Interface, SomeOther {
-        public let x: NSNumber
-        private var y: NSNumber
-        init(_ x: NSNumber, _ y: NSNumber) {
+        public let x: Double
+        private var y: Double
+        init(_ x: Double, _ y: Double) {
         self.x = x
         self.y = y
         }
-        public init(x: NSNumber, y: NSNumber) {
+        public init(x: Double, y: Double) {
         self.x = x
         self.y = y
         }
@@ -308,10 +308,10 @@ class TypeSwiftTests: XCTestCase {
         let exp = """
         typealias T = [UInt]
         struct Module {
-        typealias V = (String, NSNumber)
+        typealias V = (String, Double)
         struct NameSpace {
         protocol Bar {
-        var x: NSNumber { get }
+        var x: Double { get }
         }
         }
         public func some(userID: String) -> String {
@@ -319,13 +319,13 @@ class TypeSwiftTests: XCTestCase {
         }
         }
         public struct Foo {
-        public let x: NSNumber
-        private var y: NSNumber
-        init(_ x: NSNumber, _ y: NSNumber) {
+        public let x: Double
+        private var y: Double
+        init(_ x: Double, _ y: Double) {
         self.x = x
         self.y = y
         }
-        public init(x: NSNumber, y: NSNumber) {
+        public init(x: Double, y: Double) {
         self.x = x
         self.y = y
         }
