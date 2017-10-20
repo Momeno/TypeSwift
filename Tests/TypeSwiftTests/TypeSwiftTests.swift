@@ -307,9 +307,9 @@ class TypeSwiftTests: XCTestCase {
         
         let exp = """
         typealias T = [UInt]
-        struct Module {
+        enum Module {
         typealias V = (String, Double)
-        struct NameSpace {
+        enum NameSpace {
         protocol Bar {
         var x: Double { get }
         }
