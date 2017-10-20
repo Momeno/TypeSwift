@@ -40,3 +40,16 @@ public enum PropertyScope: String, SwiftStringConvertible {
         return self.rawValue == PropertyScope.`static`.rawValue
     }
 }
+
+extension RawRepresentable where Self.RawValue == String {
+    static func extractWithPrefix(from string: String) -> (value: Self, count: Int)? {
+        var raw = ""
+        for char in string {
+            raw += "\(char)"
+            if let prop = Self(rawValue: raw) {
+                return (prop, raw.count)
+            }
+        }
+        return nil
+    }
+}

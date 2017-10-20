@@ -33,25 +33,15 @@ public enum Function: TypeScriptInitializable, SwiftStringConvertible {
         var scope: PropertyScope?
         var access = PropertyAccessLevel.`public`
 
-        guard var first = working.getWord(atIndex: 0, seperation: .whitespaces) else {
-            self = .empty
-            return
-        }
-
-        if let sp = PropertyScope(rawValue: first) {
-            scope = sp
-            working = String(working.suffix(from: working.index(working.startIndex, offsetBy: first.count)))
+        if let acc = PropertyAccessLevel.extractWithPrefix(from: working) {
+            access = acc.value
+            working = working.suffix(fromIndex: working.index(atInt: acc.count))
                 .trimLeadingWhitespace()
-            guard let word = working.getWord(atIndex: 0, seperation: .whitespaces) else {
-                self = .empty
-                return
-            }
-            first = word
         }
 
-        if let acc = PropertyAccessLevel(rawValue: working) {
-            access = acc
-            working = String(working.suffix(from: working.index(working.startIndex, offsetBy: first.count)))
+        if let sp = PropertyScope.extractWithPrefix(from: working) {
+            scope = sp.value
+            working = working.suffix(fromIndex: working.index(atInt: sp.count))
                 .trimLeadingWhitespace()
         }
 

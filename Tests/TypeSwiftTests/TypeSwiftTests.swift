@@ -289,7 +289,7 @@ class TypeSwiftTests: XCTestCase {
         readonly x: number
         }
         }
-        function some(userID: string) : string {
+        private static function some(userID: string) : string {
         return `something/${userID}`
         }
         }
@@ -314,7 +314,7 @@ class TypeSwiftTests: XCTestCase {
         var x: Double { get }
         }
         }
-        public func some(userID: String) -> String {
+        private static func some(userID: String) -> String {
         return \"something/\\(userID)\"
         }
         }
