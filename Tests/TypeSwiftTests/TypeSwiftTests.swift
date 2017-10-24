@@ -266,7 +266,7 @@ class TypeSwiftTests: XCTestCase {
         }
         """)
 
-        let exp = "public func getReference(dialogID: String, userID: UInt) -> String {\nreturn \"/path/to/\\(userID)/\\(dialogID)\"\n}"
+        let exp = "public func getReference(_ dialogID: String, _ userID: UInt) -> String {\nreturn \"/path/to/\\(userID)/\\(dialogID)\"\n}"
         XCTAssert(function.swiftValue == exp)
     }
     
@@ -314,7 +314,7 @@ class TypeSwiftTests: XCTestCase {
         var x: Double { get }
         }
         }
-        private static func some(userID: String) -> String {
+        private static func some(_ userID: String) -> String {
         return \"something/\\(userID)\"
         }
         }

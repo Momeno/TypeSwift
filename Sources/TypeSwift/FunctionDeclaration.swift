@@ -27,7 +27,7 @@ public struct FunctionDeclaration: SwiftStringConvertible, TypeScriptInitializab
         let regex = "\\(.*\\)"
         let paramStr = functionParams
             .map {
-                $0.swiftValue
+                "_ \($0.swiftValue)"
             }
             .joined(separator: ", ")
 
