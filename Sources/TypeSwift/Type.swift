@@ -17,6 +17,7 @@ public enum Type: TypeScriptInitializable, SwiftStringConvertible {
     indirect case array(Type)
     indirect case tuple(Type, Type)
     indirect case generic(String, [Type])
+    case associated(String, String)
     case custom(String)
 
     public init(typescript: String) throws {
@@ -118,6 +119,8 @@ public enum Type: TypeScriptInitializable, SwiftStringConvertible {
             return "(\(type1.swiftValue), \(type2.swiftValue))"
         case .custom(let str):
             return str
+        case .associated(let name, let conforming):
+            return "\(name): \(conforming)"
         case .generic(let name, let associatedTypes):
             let associates = associatedTypes.map { $0.swiftValue }
                 .joined(separator: ", ")

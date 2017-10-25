@@ -202,7 +202,7 @@ class TypeSwiftTests: XCTestCase {
     
     func testModel() {
         var raw = """
-        export class Foo extends Another implements Interface, SomeOther {
+        export class Foo<T: Interface> extends Another implements Interface, SomeOther {
         public readonly x: number;
         private y: number;
         someFunc(): string {
@@ -212,7 +212,7 @@ class TypeSwiftTests: XCTestCase {
         """
         
         let exp = """
-        public struct Foo: Another, Interface, SomeOther {
+        public struct Foo<T: Interface>: Another, Interface, SomeOther {
         public let x: Double
         private var y: Double
         init(_ x: Double, _ y: Double) {
