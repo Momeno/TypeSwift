@@ -202,7 +202,7 @@ class TypeSwiftTests: XCTestCase {
     
     func testModel() {
         var raw = """
-        export class Foo<T: Interface> extends Another implements Interface, SomeOther {
+        export class Foo<T extends Interface> extends Another implements Interface, SomeOther {
         public readonly x: number;
         private y: number;
         someFunc(): string {

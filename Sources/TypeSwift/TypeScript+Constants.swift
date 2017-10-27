@@ -29,5 +29,8 @@ extension TypeScript {
         static let function = "function"
 
         static let `import` = "import"
+
+        static let extends = "extends"
+        static let implements = "implements"
     }
 }

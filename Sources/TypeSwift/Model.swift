@@ -7,10 +7,12 @@
 
 import Foundation
 
+typealias AssociatedTypeComponent = (typeName: String, extensionString: String?)
+
 public struct Model: TypeScriptInitializable, SwiftStringConvertible {
     let modelDec: ModelDeclaration
     let name: String
-    let associatedTypesString: String?
+    let associatedTypes: [AssociatedTypeComponent]?
     let extends: [String]?
     let implements: [String]?
     let body: ModelBody
@@ -28,7 +30,14 @@ public struct Model: TypeScriptInitializable, SwiftStringConvertible {
         case (.none, .none):
             break
         }
-        let genericString = self.associatedTypesString != nil ? "<\(self.associatedTypesString!)>" : ""
+
+        let associatedTypesString = (self.associatedTypes ?? []).map { component in
+                let extensionString = component.extensionString != nil ? ": \(component.extensionString!)" : ""
+                return "\(component.typeName)\(extensionString)"
+            }
+            .joined(separator: ", ")
+
+        let genericString = associatedTypesString.isEmpty ? "" : "<\(associatedTypesString)>"
         return "\(modelDec.swiftValue) \(name)\(genericString)\(extends) \(body.swiftValue)"
     }
 
@@ -56,7 +65,7 @@ public struct Model: TypeScriptInitializable, SwiftStringConvertible {
             .trimLeadingWhitespace()
         
         var nameOptional: String?
-        var associatedTypesString: String?
+        var associatedTypesOptional: [AssociatedTypeComponent]?
 
         if let rangeOfGenerics = suffix.range(of: "<(.*|\\n)>",
                                               options: .regularExpression,
@@ -65,7 +74,13 @@ public struct Model: TypeScriptInitializable, SwiftStringConvertible {
             
             // get the "..." in <...>
             let innerRange = suffix.index(after: rangeOfGenerics.lowerBound)..<suffix.index(before: rangeOfGenerics.upperBound)
-            associatedTypesString = String(suffix[innerRange])
+            let inner = String(suffix[innerRange])
+
+            associatedTypesOptional = inner.componentsWithoutPadding(separatedBy: ",")
+                .map { element -> AssociatedTypeComponent in
+                    let components = element.componentsWithoutPadding(separatedBy: "extends")
+                    return (typeName: components[0], extensionString: components.count > 1 ? components[1] : nil)
+                }
             
             nameOptional = String(suffix.prefix(upTo: rangeOfGenerics.lowerBound))
                 .trimTrailingWhitespace()
@@ -104,7 +119,7 @@ public struct Model: TypeScriptInitializable, SwiftStringConvertible {
 
         self.modelDec = modelDec
         self.name = name
-        self.associatedTypesString = associatedTypesString
+        self.associatedTypes = associatedTypesOptional
         self.body = body
     }
 }
