@@ -349,6 +349,7 @@ class TypeSwiftTests: XCTestCase {
         XCTAssert((try! TypeScript(typescript: raw)).swiftValue == exp)
     }
 
+    /*
     func testBigTest() {
         let documentsPath = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true)[0]
 
@@ -379,6 +380,7 @@ class TypeSwiftTests: XCTestCase {
             }
         }
     }
+    */
     
     static var allTests = [
         ("testVariableDeclaration", testVariableType),
