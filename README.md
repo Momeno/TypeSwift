@@ -23,7 +23,7 @@ A set of tools for parsing TypeScript models into Swift ones
 ### Installation
 
 ```swift
-.package(url: "https://github.com/valdirunars/TypeSwift.git", from: "0.0.1")
+.package(url: "https://github.com/valdirunars/TypeSwift.git", from: "0.0.14")
 ```
 
 ### Usage
